@@ -10,7 +10,7 @@ spring:
       ddl-auto: update
     open-in-view: false
   session:
-    store-type: jdbc
+    store-type: redis
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
@@ -18,8 +18,14 @@ spring:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
-    password: ${REDIS_PAW}
+    password: {REDIS_PWD}
     timeout: 200
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+      cache-null-values: false
+      use-key-prefix: true
 ---
 bbs:
   authentication:
