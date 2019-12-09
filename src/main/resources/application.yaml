@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: development
+---
+spring:
+  profiles: development
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  session:
+    store-type: jdbc
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PWD}
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PAW}
+    timeout: 200
+---
+bbs:
+  authentication:
+    name: ${AUTHENTICATION_NAME:manage}
+    passwordField: ${PWD_FIELD:password}
+  secret:
+    token: ${TOKEN_SECRET:secret}
+    password: ${PWD_SALT:salt}
