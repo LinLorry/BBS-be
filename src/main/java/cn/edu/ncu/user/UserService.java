@@ -3,6 +3,9 @@ package cn.edu.ncu.user;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,7 +38,8 @@ public class UserService implements UserDetailsService {
      * @param user the new user have raw password.
      * @return new user.
      */
-    User add(User user) {
+    @CachePut(value = "userCache", key = "#user.username")
+    public User add(User user) {
         String hash = encoder.encode(salt + user.getPassword().trim() + salt);
         user.setPassword(hash);
 
@@ -43,37 +47,20 @@ public class UserService implements UserDetailsService {
     }
 
     /**
-     * Check User Exists By Username
-     * @param username the username
-     * @return if user exists return true else return false.
-     */
-    boolean checkByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    /**
      * Update User
      * @param user the user will be update.
      */
-    User update(User user) {
+    @CachePut(value = "userCache", key = "#user.id")
+    public User update(User user) {
         return userRepository.save(user);
-    }
-
-    /**
-     * Check User Password
-     * @param user be checked user.
-     * @param password be checked password.
-     * @return if password correct return true else return false.
-     */
-    boolean checkPassword(User user, String password) {
-        return encoder.matches(salt + password + salt, user.getPassword());
     }
 
     /**
      * Update User Password
      * @param user the user with new raw password.
      */
-    void updatePassword(User user) {
+    @CacheEvict(value= "userCache", key= "#user.id", allEntries= true)
+    public void updatePassword(User user) {
         String hash = encoder.encode(salt + user.getPassword().trim() + salt);
         user.setPassword(hash);
 
@@ -86,7 +73,8 @@ public class UserService implements UserDetailsService {
      * @return the user.
      * @throws NoSuchElementException if the user is not exits throw this exception.
      */
-    User loadById(Long id) throws NoSuchElementException {
+    @Cacheable(value= "userCache", key= "#id")
+    public User loadById(Long id) throws NoSuchElementException {
         return userRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
@@ -97,8 +85,29 @@ public class UserService implements UserDetailsService {
      * @throws UsernameNotFoundException if user is not exits throw UsernameNotFoundException.
      */
     @Override
+    @Cacheable(value = "userCache", key = "#username")
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User doesn't exits."));
+    }
+
+    /**
+     * Check User Exists By Username
+     * @param username the username
+     * @return if user exists return true else return false.
+     */
+    @Cacheable(value = "userExistCache", key = "#username")
+    public boolean checkByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    /**
+     * Check User Password
+     * @param user be checked user.
+     * @param password be checked password.
+     * @return if password correct return true else return false.
+     */
+    boolean checkPassword(User user, String password) {
+        return encoder.matches(salt + password + salt, user.getPassword());
     }
 }
