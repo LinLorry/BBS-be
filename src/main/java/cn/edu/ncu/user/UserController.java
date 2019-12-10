@@ -6,7 +6,10 @@ import cn.edu.ncu.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * User Controller
@@ -29,9 +32,11 @@ public class UserController {
     /**
      * Registry Api
      * @param request {
-     *      "username": username: String,
-     *      "password": password: String,
-     *      "name": name: String
+     *      "username": username: String[must],
+     *      "password": password: String[must],
+     *      "name": name: String,
+     *      "contact": contact: String,
+     *      "nature": nature: String
      * }
      * @return if registry success return {
      *     "status": 1,
@@ -48,18 +53,24 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/registry")
-    public JSONObject registry(@RequestBody JSONObject request) {
+    public JSONObject registry(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
 
-        String username = request.getString("username");
+        String username = Optional.of(request.getString("username"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("username", "String"));
+        String password = Optional.of(request.getString("password"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("password", "String"));
         String name = request.getString("name");
-        String password = request.getString("password");
+        String contact = request.getString("contact");
+        String nature = request.getString("nature");
 
         User user = new User();
 
         user.setUsername(username);
         user.setName(name);
         user.setPassword(password);
+        user.setContact(contact);
+        user.setNature(nature);
 
         try {
             response.put("data", userService.add(user));
@@ -80,8 +91,8 @@ public class UserController {
     /**
      * User Login, Get Token Api
      * @param request {
-     *      "username": username: String,
-     *      "password": password: String,
+     *      "username": username: String[must],
+     *      "password": password: String[must]
      * }
      * @return if login success return {
      *     "status": 1,
@@ -94,11 +105,14 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/token")
-    public JSONObject token(@RequestBody JSONObject request) {
+    public JSONObject token(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
         JSONObject result = new JSONObject();
 
-        String username = request.getString("username");
-        String password = request.getString("password");
+        String username = Optional.of(request.getString("username"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("username", "String"));
+
+        String password = Optional.of(request.getString("password"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("password", "String"));
 
         try {
             User user = userService.loadUserByUsername(username);
@@ -126,7 +140,9 @@ public class UserController {
      *     "data": {
      *         "id": user id: BigInteger,
      *         "username": username: String,
-     *         "name": name: String
+     *         "name": name: String,
+     *         "contact": contact: String,
+     *         "nature": nature: String
      *     }
      * }
      */
@@ -145,7 +161,9 @@ public class UserController {
     /**
      * Update User Profile Api
      * @param request {
-     *      "name": name: String
+     *      "name": name: String,
+     *      "contact": contact: String,
+     *      "nature": nature: String
      * }
      * @return if update user profile success return {
      *     "status": 1,
@@ -153,7 +171,9 @@ public class UserController {
      *     "data": {
      *         "id": user id: BigInteger
      *         "username": username: String,
-     *         "name": name: String
+     *         "name": name: String,
+     *         "contact": contact: String,
+     *         "nature": nature: String
      *     }
      * } else return {
      *     "status": 0,
@@ -165,9 +185,15 @@ public class UserController {
     public JSONObject editProfile(@RequestBody JSONObject request) {
         JSONObject response = new JSONObject();
 
-        String name = request.getString("name");
         User user = userService.loadById(SecurityUtil.getUserId());
-        user.setName(name);
+
+        Optional<String> name = Optional.of(request.getString("name"));
+        Optional<String> contact = Optional.of(request.getString("contact"));
+        Optional<String> nature = Optional.of(request.getString("nature"));
+
+        name.ifPresent(user::setName);
+        contact.ifPresent(user::setContact);
+        nature.ifPresent(user::setNature);
 
         try {
             response.put("data", userService.update(user));
@@ -184,8 +210,8 @@ public class UserController {
     /**
      * Edit Password Api
      * @param request {
-     *      "oldPassword": oldPassword: String,
-     *      "newPassword": newPassword: String
+     *      "oldPassword": oldPassword: String[must],
+     *      "newPassword": newPassword: String[must]
      * }
      * @return if edit password success return {
      *     "status": 1,
@@ -200,10 +226,13 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/password")
-    public JSONObject editPassword(@RequestBody JSONObject request) {
+    public JSONObject editPassword(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
-        String oldPassword = request.getString("oldPassword");
-        String newPassword = request.getString("newPassword");
+
+        String oldPassword = Optional.of(request.getString("oldPassword"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("oldPassword", "String"));
+        String newPassword = Optional.of(request.getString("newPassword"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("newPassword", "String"));
 
         User user = userService.loadById(SecurityUtil.getUserId());
 
