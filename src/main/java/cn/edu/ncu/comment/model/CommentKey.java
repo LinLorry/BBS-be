@@ -1,7 +1,6 @@
 package cn.edu.ncu.comment.model;
 
 import cn.edu.ncu.topic.model.Topic;
-import cn.edu.ncu.user.model.User;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -28,20 +27,13 @@ public class CommentKey implements Serializable {
     @ManyToOne
     private Topic topic;
 
-    @Id
-    @ManyToOne
-    private User user;
-
     public CommentKey() {
     }
 
-    public CommentKey(Integer location, Long topicId, Long userId) {
+    public CommentKey(Integer location, Long topicId) {
         this.location = location;
-        topic = new Topic();
-        user = new User();
-
-        topic.setId(topicId);
-        user.setId(userId);
+        this.topic = new Topic();
+        this.topic.setId(topicId);
     }
 
     public Integer getLocation() {
@@ -60,26 +52,25 @@ public class CommentKey implements Serializable {
         this.topic = topic;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CommentKey)) return false;
         CommentKey that = (CommentKey) o;
         return location.equals(that.location) &&
-                topic.equals(that.topic) &&
-                user.equals(that.user);
+                topic.getId().equals(that.topic.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(location, topic, user);
+        return Objects.hash(location, topic.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "CommentKey{" +
+                "location=" + location +
+                ", topicId=" + topic.getId() +
+                '}';
     }
 }
