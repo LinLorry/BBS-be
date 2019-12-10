@@ -1,6 +1,5 @@
 package cn.edu.ncu.topic.rep;
 
-
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import net.bytebuddy.utility.RandomString;

@@ -1,6 +1,5 @@
 package cn.edu.ncu.topic.rep;
 
-
 import cn.edu.ncu.topic.model.TopTopic;
 import cn.edu.ncu.topic.model.Topic;
 import org.junit.Test;
