@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
@@ -45,7 +47,8 @@ public class CommentRepositoryTest {
         Comment comment = new Comment();
         comment.setTopic(topic);
         comment.setUser(user);
-        comment.setLocation(commentRepository.countAllByTopicAndUser(topic, user) + 1);
+        comment.setLocation(commentRepository.getMaxLocationByTopicId(1L) + 1);
+
         comment.setContent(RandomString.make());
         comment.setCreateTime(new Timestamp(System.currentTimeMillis()));
 
@@ -59,7 +62,7 @@ public class CommentRepositoryTest {
 
     @Test
     public void findById() {
-        CommentKey commentKey = new CommentKey(1, 1L, 1L);
+        CommentKey commentKey = new CommentKey(1, 1L);
         Comment comment = commentRepository.findById(commentKey).orElseThrow(NoSuchElementException::new);
 
         assertEquals(comment.getLocation(), new Integer(1));
@@ -78,16 +81,20 @@ public class CommentRepositoryTest {
     }
 
     @Test
-    public void countAllByTopicAndUser() {
-        Topic topic = new Topic();
-        User user = new User();
-
-        topic.setId(1L);
-        user.setId(1L);
-
-        Integer result = commentRepository.countAllByTopicAndUser(topic, user);
-
-        assertNotNull(result);
+    public void getMaxLocationByTopicId() {
+        Integer result = commentRepository.getMaxLocationByTopicId(1L);
         System.out.println(result);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void findAllByTopic() {
+        Topic topic = new Topic();
+        topic.setId(1L);
+
+        Page<Comment> comments = commentRepository.findAllByTopic(topic, PageRequest.of(0, 20));
+
+        assertNotNull(comments);
+        comments.forEach(System.out::println);
     }
 }
