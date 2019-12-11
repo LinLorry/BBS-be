@@ -16,8 +16,8 @@ public class DemandService  {
 
     /**
      * add Demand
-     * @param demand
-     * @return
+     * @param demand add a new demand
+     * @return Demand
      */
 
     public Demand add(Demand demand){
@@ -26,11 +26,20 @@ public class DemandService  {
 
     /**
      * update Demand
-     * @param demand
-     * @return
+     * @param demand the demand will be update
+     * @return demand
      */
 
     public Demand update(Demand demand){
         return demandRepository.save(demand);
+    }
+
+    /**
+     * delete Demand
+     * @param topicId the topicId of which you want to delete
+     */
+
+    void deleteDemandByTpoicId(Long topicId){
+        demandRepository.deleteById(topicId);
     }
 }
