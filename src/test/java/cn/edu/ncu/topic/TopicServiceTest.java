@@ -39,4 +39,23 @@ public class TopicServiceTest {
 
         topicService.addTopic(jsonObject,user,null);
     }
+
+    @Test
+    public void deleteById() {
+        topicService.deleteById(1L);
+    }
+
+    @Test
+    @Transactional
+    public void findAll() {
+        List<Topic> topics = topicService.findAll();
+        for (Topic topic:topics) {
+            System.out.println(topic);
+        }
+    }
+
+    @Test
+    public void loadTopicById() {
+        Topic topic=topicService.loadTopicById(1L);
+    }
 }
