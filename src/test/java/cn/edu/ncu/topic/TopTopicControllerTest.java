@@ -28,6 +28,45 @@ public class TopTopicControllerTest {
     @Autowired
     private TestUtil testUtil;
     private static final String baseUrl = "/api/topTopic";
+    @Test
+    public void add() throws URISyntaxException {
+        final String url=baseUrl+"/add";
+        URI uri=new URI(url);
+
+        JSONObject requestBody=new JSONObject();
+        requestBody.put("id", 1L);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
+        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
+        // System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+
+    @Test
+    public void deleteTopTopicByTopicId() throws URISyntaxException {
+        final String url=baseUrl+"/delete";
+        URI uri=new URI(url);
+        JSONObject requestBody=new JSONObject();
+        requestBody.put("id",2L);
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
+        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
+        //System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void find() throws URISyntaxException {
+        final String url=baseUrl+"/find";
+        URI uri=new URI(url);
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        Assert.assertEquals(200, response.getStatusCodeValue());
+    }
 
 
 
