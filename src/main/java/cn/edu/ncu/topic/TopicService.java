@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -46,6 +47,14 @@ public class TopicService {
      */
     void deleteById(Long id) throws EmptyResultDataAccessException {
         topicRepository.deleteById(id);
+    }
+
+    /**
+     * Find all Topics
+     * @return Topic Lists
+     */
+    List<Topic> findAll() {
+        return topicRepository.findAll();
     }
 
 
