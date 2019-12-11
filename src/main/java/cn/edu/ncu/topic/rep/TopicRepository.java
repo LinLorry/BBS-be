@@ -1,6 +1,7 @@
 package cn.edu.ncu.topic.rep;
 
 import cn.edu.ncu.topic.model.Topic;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,9 +20,8 @@ public interface TopicRepository extends CrudRepository<Topic, Long> {
 
     List<Topic> findAll();
 
-
-
-
-
     boolean existsById(long id);
+
+    List<Topic> findAll(Specification<Topic> specification);
+    Topic save(Topic topic);
 }
