@@ -1,0 +1,9 @@
+package cn.edu.ncu.topic;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class TopicServiceTest {
+
+}
