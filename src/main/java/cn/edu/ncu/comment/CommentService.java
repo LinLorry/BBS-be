@@ -5,7 +5,6 @@ import cn.edu.ncu.comment.model.CommentKey;
 import cn.edu.ncu.comment.rep.CommentRepository;
 import cn.edu.ncu.topic.model.Topic;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
@@ -35,18 +34,15 @@ public class CommentService {
     /**
      * Add Comment Service
      * @param comment the comment will be add.
-     * @return the comment have be added.
      */
     @Caching(
-            put = { @CachePut(value = "commentCache", key = "#comment.topic.id + #comment.location") },
             evict = {
                     @CacheEvict(value = "commentArrayCache", allEntries = true),
                     @CacheEvict(value = "topicMaxLocationCache", key = "#comment.topic.id")
             }
     )
-    public Comment add(Comment comment) {
+    public void add(Comment comment) {
         entityManager.persist(comment);
-        return comment;
     }
 
     /**
