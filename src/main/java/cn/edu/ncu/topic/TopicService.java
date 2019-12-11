@@ -4,28 +4,24 @@ import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.user.model.User;
+import cn.edu.ncu.util.SpecificationUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
 public class TopicService {
     private final TopicRepository topicRepository;
-
-
     public TopicService(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;
     }
 
-    /**
-     * Add Topic
-     * @param json have the topic data json.
-     * @param user the publish user.
-     * @return the topic have been created.
-     */
+    /*
     Topic addTopic(JSONObject json, User user, Demand demand) {
         Topic topic = new Topic();
 
@@ -39,7 +35,10 @@ public class TopicService {
         topicRepository.save(topic);
         return topic;
     }
-
+*/
+    Topic add(Topic topic){
+        return topicRepository.save(topic);
+    }
     /**
      * Delete Topic by id
      * @param id the topic id
@@ -67,5 +66,20 @@ public class TopicService {
      */
     public Topic loadTopicById(long id) throws NoSuchElementException {
         return topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    }
+
+    /**
+     * 模糊查询？
+     * @param equalMap
+     * @param likeMap
+     * @return
+     */
+    List<Topic> load(Map<String, Object> equalMap,
+                     Map<String, Object> likeMap) {
+        SpecificationUtil specificationUtil = new SpecificationUtil();
+        specificationUtil.addEqualMap(equalMap);
+        specificationUtil.addLikeMap(likeMap);
+        Specification<Topic> specification = specificationUtil.getSpecification();
+        return topicRepository.findAll(specification);
     }
 }
