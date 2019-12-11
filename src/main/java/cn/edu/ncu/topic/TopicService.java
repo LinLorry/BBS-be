@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.EntityManagerFactory;
+import java.util.NoSuchElementException;
 
 public class TopicService {
     private final TopicRepository topicRepository;
@@ -43,4 +44,15 @@ public class TopicService {
         return topic;
     }
 
+
+
+    /**
+     * get the Topic by id
+     * @param id the topic id.
+     * @return topic which id is param.
+     * @throws NoSuchElementException if topic doesn't exist, throw this exception.
+     */
+    public Topic loadTopicById(long id) throws NoSuchElementException {
+        return topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    }
 }
