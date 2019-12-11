@@ -23,7 +23,7 @@ public class Demand implements Serializable {
     private Long topicId;
 
     @OneToOne
-    @PrimaryKeyJoinColumn
+    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "topic")
     private Topic topic;
 
     @Column(nullable = false)
