@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
@@ -36,6 +37,7 @@ public class DemandRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void findById() {
         Demand demand = demandRepository.findById(1L).orElseThrow(NoSuchElementException::new);
 
