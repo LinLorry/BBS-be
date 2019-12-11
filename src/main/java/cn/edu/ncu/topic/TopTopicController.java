@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -42,15 +43,17 @@ public class TopTopicController {
             response.put("status", 1);
             response.put("message", "Add Success.");
         } catch (DataIntegrityViolationException e) {
-            if (topTopicService.findByTopicId(id)!=null) {
+            /*if (topTopicService.findByTopicId(id)!=null) {
                 throw e;
-            }
+            }*/
             response.put("status", 0);
             response.put("message", "The topic has been placed at the top.");
+        }catch (NoSuchElementException e){
+            response.put("status",0);
+            response.put("message","The topic isn't exist");
         }
         return response;
     }
-
     /**
      *
      * @param request
@@ -79,15 +82,21 @@ public class TopTopicController {
      * @return 返回json，包括status,message,data
      */
     @ResponseBody
-    @RequestMapping("/find")
+    @GetMapping("/get")
     public JSONObject find() {
         JSONObject response = new JSONObject();
-        JSONObject data = new JSONObject();
+
         List<TopTopic>topTopics=topTopicService.findAll();
-        data.put("result",topTopics);
+
+        List<Topic> topics = new ArrayList<>();
+
+        for (TopTopic topTopic : topTopics) {
+            topics.add(topTopic.getTopic());
+        }
+
         response.put("status", 1);
         response.put("message", "Get toptopic success.");
-        response.put("data", data);
+        response.put("data", topics);
         return response;
     }
 /*
