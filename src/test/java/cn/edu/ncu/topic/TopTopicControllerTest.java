@@ -34,11 +34,11 @@ public class TopTopicControllerTest {
         URI uri=new URI(url);
 
         JSONObject requestBody=new JSONObject();
-        requestBody.put("id", 1L);
+        requestBody.put("id", 3L);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
-        // System.out.println(response.getBody());
+        System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
@@ -51,13 +51,13 @@ public class TopTopicControllerTest {
         requestBody.put("id",2L);
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
-        //System.out.println(response.getBody());
+        System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
     public void find() throws URISyntaxException {
-        final String url=baseUrl+"/find";
+        final String url=baseUrl+"/get";
         URI uri=new URI(url);
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
