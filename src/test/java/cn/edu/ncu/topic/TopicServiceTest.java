@@ -5,6 +5,7 @@ import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
 import com.alibaba.fastjson.JSONObject;
+import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -26,18 +30,35 @@ public class TopicServiceTest {
 
     @Autowired
     private UserRepository userRepository;
-
+/*
     @Test
     public void addTopic() {
         User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("title","标题");
-        jsonObject.put("content","内容");
+        jsonObject.put("title","测试1的title");
+        jsonObject.put("content","测试1的context");
         jsonObject.put("time","2019-12-12 12:12:00");
         jsonObject.put("boutique",false);
+        System.out.println(jsonObject);
 
         topicService.addTopic(jsonObject,user,null);
+    }
+*/
+
+    @Test
+    public  void add(){
+        Topic topic=new Topic();
+        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        topic.setId(10L);
+        topic.setTitle(RandomString.make());
+        topic.setContent(RandomString.make());
+        topic.setCreateUser(user);
+        topic.setBoutique(false);
+        topic.setDemand(null);
+        LocalDate today = LocalDate.now();
+        topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
+        topicService.add(topic);
+        System.out.println(topic);
     }
 
     @Test
