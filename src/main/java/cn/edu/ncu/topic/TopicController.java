@@ -122,5 +122,45 @@ public class TopicController {
         return  response;
     }
 
+    @ResponseBody
+    @GetMapping("/delete")
+    public JSONObject delete(@RequestParam(required = true)Long id){
+        JSONObject response=new JSONObject();
+        try{
+            topicService.deleteById(id);
+            response.put("status",1);
+            response.put("message","Delete topic success");
+        }catch (EmptyResultDataAccessException e){
+            response.put("status",0);
+            response.put("message","The topic isn't exist");
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @GetMapping("/find")
+    public JSONObject find(
+            @RequestParam(required = false) Integer id,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String content){
+        JSONObject response=new JSONObject();
+        Map<String,Object> equalMap=new HashMap<>();
+        Map<String,Object> likeMap=new HashMap<>();
+        if(id !=null){
+            equalMap.put("id",id);
+        }
+        if(title !=null){
+            likeMap.put("title",title);
+        }
+        if(content !=null){
+            likeMap.put("context",content);
+        }
+        List<Topic> topics=topicService.load(equalMap,likeMap);
+        response.put("data",topics);
+        response.put("status",1);
+        response.put("message","Get Topic success");
+        return response;
+
+    }
 
 }
