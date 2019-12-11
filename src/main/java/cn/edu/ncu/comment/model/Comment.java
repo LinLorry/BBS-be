@@ -29,7 +29,7 @@ public class Comment implements Serializable {
     @JsonIgnore
     private Topic topic;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JsonIgnore
     private User user;
 
@@ -77,6 +77,10 @@ public class Comment implements Serializable {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public String getUserName() {
+        return user.getUsername();
     }
 
     @Override
