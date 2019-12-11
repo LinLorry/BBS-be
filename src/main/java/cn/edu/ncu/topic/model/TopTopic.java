@@ -18,8 +18,8 @@ public class TopTopic implements Serializable {
     @Column(updatable = false)
     private Long topicId;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
+    @OneToOne(fetch = FetchType.EAGER)
+    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "topic")
     private Topic topic;
 
     public Long getTopicId() {
