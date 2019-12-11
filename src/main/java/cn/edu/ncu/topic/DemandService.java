@@ -5,6 +5,9 @@ import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.rep.DemandRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class DemandService  {
 
@@ -41,5 +44,18 @@ public class DemandService  {
 
     void deleteDemandByTpoicId(Long topicId){
         demandRepository.deleteById(topicId);
+    }
+
+    /**
+     *
+     * @return demand list
+     */
+
+    List<Demand> findAll(){
+        Iterable<Demand> demands = demandRepository.findAll();
+        List<Demand> list = new ArrayList<>();
+        demands.forEach(list::add);
+
+        return list;
     }
 }
