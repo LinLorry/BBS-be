@@ -5,22 +5,18 @@ import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.user.model.User;
 import com.alibaba.fastjson.JSONObject;
-import org.hibernate.SessionFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManagerFactory;
 import java.util.NoSuchElementException;
 
+@Service
 public class TopicService {
     private final TopicRepository topicRepository;
 
-    private final SessionFactory sessionFactory;
 
-    public TopicService(TopicRepository topicRepository, EntityManagerFactory factory) {
+    public TopicService(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;
-        if(factory.unwrap(SessionFactory.class) == null){
-            throw new NullPointerException("factory is not a hibernate factory");
-        }
-        this.sessionFactory = factory.unwrap(SessionFactory.class);
     }
 
     /**
@@ -32,7 +28,6 @@ public class TopicService {
     Topic addTopic(JSONObject json, User user, Demand demand) {
         Topic topic = new Topic();
 
-        topic.setId(json.getLong("id"));
         topic.setTitle(json.getString("title"));
         topic.setContent(json.getString("content"));
         topic.setCreateTime(json.getTimestamp("time"));
@@ -42,6 +37,15 @@ public class TopicService {
 
         topicRepository.save(topic);
         return topic;
+    }
+
+    /**
+     * Delete Topic by id
+     * @param id the topic id
+     * @throws EmptyResultDataAccessException if topic doesn't exist, throw this exception
+     */
+    void deleteById(Long id) throws EmptyResultDataAccessException {
+        topicRepository.deleteById(id);
     }
 
 
