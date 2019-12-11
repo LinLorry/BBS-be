@@ -15,13 +15,22 @@ public class DemandService  {
     }
 
     /**
-     *
+     * add Demand
      * @param demand
      * @return
      */
 
     public Demand add(Demand demand){
+        return demandRepository.save(demand);
+    }
 
+    /**
+     * update Demand
+     * @param demand
+     * @return
+     */
+
+    public Demand update(Demand demand){
         return demandRepository.save(demand);
     }
 }
