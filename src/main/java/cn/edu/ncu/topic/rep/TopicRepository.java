@@ -3,6 +3,8 @@ package cn.edu.ncu.topic.rep;
 import cn.edu.ncu.topic.model.Topic;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,6 +16,12 @@ import java.util.Optional;
 @Repository
 public interface TopicRepository extends CrudRepository<Topic, Long> {
     Optional<Topic> findById(long id);
+
+    List<Topic> findAll();
+
+
+
+
 
     boolean existsById(long id);
 }
