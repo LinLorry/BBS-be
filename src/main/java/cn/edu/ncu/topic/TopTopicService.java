@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+
 @Service
 public class TopTopicService {
     private final TopTopicRepository topTopicRepository;
@@ -24,19 +24,17 @@ public class TopTopicService {
      * @return 返回加精帖子本身
      */
     TopTopic add(TopTopic topTopic){
-        TopTopic temp=findByTopicId(topTopic.getTopicId());
-        if(temp==null){
-            throw new NoSuchElementException();
-        }
-         return topTopicRepository.save(topTopic);
+        topicRepository.findById(topTopic.getTopicId())
+                .orElseThrow(NoSuchElementException::new);
+        return topTopicRepository.save(topTopic);
     }
 
     /**
      *删除帖子
      * @param topicId
      */
-    void deleteTopTopicByTopicId(Long topicId){
-       topTopicRepository.deleteTopTopicByTopicId(topicId);
+    void deleteByTopicId(Long topicId){
+        topTopicRepository.deleteTopTopicByTopicId(topicId);
     }
 
     /**
@@ -46,16 +44,4 @@ public class TopTopicService {
     List<TopTopic> findAll(){
         return  topTopicRepository.findAll();
     }
-
-    /**
-     * 通过Id查询加精帖子
-     * @param id
-     * @return
-     */
-    TopTopic findByTopicId(Long id){
-        return topTopicRepository.findByTopicId(id)
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-
 }
