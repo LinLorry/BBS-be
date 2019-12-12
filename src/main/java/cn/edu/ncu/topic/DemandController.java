@@ -1,10 +1,12 @@
 package cn.edu.ncu.topic;
 
 import cn.edu.ncu.topic.model.Demand;
+import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -72,19 +74,28 @@ public class DemandController {
         Long topicId = Optional.of(request.getLong("topicId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
-        Demand demand = demandService.loadById(topicId);
+        try {
+            Demand demand = demandService.loadById(topicId);
+            Optional.ofNullable(
+                    request.getString("content")
+            ).ifPresent(demand::setContent);
+            Optional.ofNullable(
+                    request.getString("reward")
+            ).ifPresent(demand::setContent);
 
-        Optional.ofNullable(
-                request.getString("content")
-        ).ifPresent(demand::setContent);
-        Optional.ofNullable(
-                request.getString("reward")
-        ).ifPresent(demand::setContent);
-
-        response.put("data", demandService.addOrUpdate(demand));
-        response.put("status", 1);
-        response.put("message", "Add Success");
-
+            if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
+                response.put("data", demandService.addOrUpdate(demand));
+                response.put("status", 1);
+                response.put("message", "Update Success");
+            }
+            else {
+                response.put("status", 0);
+                response.put("message", "No permission to update.");
+            }
+        }catch (NoSuchElementException e){
+            response.put("status", 0);
+            response.put("message", "The Id is not exist.");
+        }
         return response;
     }
 
@@ -104,11 +115,23 @@ public class DemandController {
         Long topicId = Optional.of(request.getLong("topicId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
-        demandService.deleteDemandByTopicId(topicId);
+        try {
+            Demand demand = demandService.loadById(topicId);
 
-        response.put("status", 1);
-        response.put("message", "The demand has been delete");
+            if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
+                demandService.deleteDemandByTopicId(topicId);
 
+                response.put("status", 1);
+                response.put("message", "The demand has been delete");
+            }
+            else {
+                response.put("status", 0);
+                response.put("message", "No permission to delete.");
+            }
+        }catch (NoSuchElementException e){
+            response.put("status", 0);
+            response.put("message", "The Id is not exist.");
+        }
         return response;
     }
 
