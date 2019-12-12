@@ -9,8 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -19,31 +17,28 @@ import static org.junit.Assert.*;
 public class TopTopicServiceTest {
     @Autowired
     private TopTopicService topTopicService;
+
     @Test
+    @Transactional
     public void add() {
         TopTopic topTopic=new TopTopic();
-        topTopic.setTopicId(2L);
+        topTopic.setTopicId(3L);
+
         topTopicService.add(topTopic);
+
+        assertNotNull(topTopic);
         System.out.println(topTopic);
     }
 
     @Test
-    @Transactional
-    public void deleteTopTopicByTopicId() {
-        topTopicService.deleteTopTopicByTopicId(1L);
+    public void deleteByTopicId() {
+        topTopicService.deleteByTopicId(1L);
     }
 
     @Test
     public void findAll() {
         List<TopTopic> topTopics=topTopicService.findAll();
-        for(TopTopic topTopic:topTopics){
-            System.out.println(topTopic);
-        }
-    }
 
-    @Test
-    public void findByTopicId() {
-        TopTopic topTopic=topTopicService.findByTopicId(1L);
-        assertEquals(topTopic.getTopicId(),new Long(1));
+        topTopics.forEach(System.out::println);
     }
 }
