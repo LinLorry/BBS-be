@@ -111,4 +111,27 @@ public class DemandController {
 
         return response;
     }
+
+    /**
+     *
+     * @param request "topicId": topicId: Long[must],
+     * @return {
+     *      "status", 1，
+     *      "message", "Load Success"
+     * }
+     */
+    @ResponseBody
+    @PostMapping("/loadById")
+    public JSONObject loadById(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+        JSONObject response = new JSONObject();
+
+        Long topicId = Optional.of(request.getLong("topicId"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
+
+        response.put("data", demandService.loadById(topicId));
+        response.put("status", 1);
+        response.put("message", "Load Success");
+
+        return response;
+    }
 }
