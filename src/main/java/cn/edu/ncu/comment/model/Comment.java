@@ -29,8 +29,7 @@ public class Comment implements Serializable {
     @JsonIgnore
     private Topic topic;
 
-    @Id
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JsonIgnore
     private User user;
 
