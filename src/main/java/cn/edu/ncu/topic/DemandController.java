@@ -45,7 +45,43 @@ public class DemandController {
         demand.setContent(content);
         demand.setReward(reward);
 
-        response.put("data", demandService.add(demand));
+        response.put("data", demandService.addOrUpdate(demand));
+        response.put("status", 1);
+        response.put("message", "Add Success");
+
+        return response;
+    }
+
+    /**
+     *
+     * @param request{
+     *     "topicId": topicId: Long[must],
+     *     "content": content: Sting,
+     *     "reward": reward: Integer
+     * }
+     * @return {
+     *     "status", 1，
+     *     "message", "Add Success"
+     * }
+     */
+    @ResponseBody
+    @PostMapping("/update")
+    public JSONObject update(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+        JSONObject response = new JSONObject();
+
+        Long topicId = Optional.of(request.getLong("topicId"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
+
+        Demand demand = demandService.loadById(topicId);
+
+        Optional.ofNullable(
+                request.getString("content")
+        ).ifPresent(demand::setContent);
+        Optional.ofNullable(
+                request.getString("reward")
+        ).ifPresent(demand::setContent);
+
+        response.put("data", demandService.addOrUpdate(demand));
         response.put("status", 1);
         response.put("message", "Add Success");
 
@@ -68,7 +104,7 @@ public class DemandController {
         Long topicId = Optional.of(request.getLong("topicId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
-        demandService.deleteDemandByTpoicId(topicId);
+        demandService.deleteDemandByTopicId(topicId);
 
         response.put("status", 1);
         response.put("message", "The demand has been delete");
