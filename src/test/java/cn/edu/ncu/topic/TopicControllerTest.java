@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -49,10 +50,16 @@ public class TopicControllerTest {
 
     @Test
     public void delete() throws URISyntaxException {
-        final String url=baseUrl+"/delete";
+        final String url=baseUrl+"/delete?id="+1L;
         URI uri=new URI(url);
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
 
+        System.out.println(response.getBody());
+        Assert.assertEquals(200, response.getStatusCodeValue());
+        
 
     }
 
