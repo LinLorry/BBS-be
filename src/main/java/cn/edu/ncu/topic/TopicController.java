@@ -8,6 +8,7 @@ import cn.edu.ncu.util.SecurityUtil;
 import cn.edu.ncu.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.logging.Log;
@@ -142,7 +143,8 @@ public class TopicController {
     public JSONObject find(
             @RequestParam(required = false) Integer id,
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) String content){
+            @RequestParam(required = false) String content,
+            @RequestParam(defaultValue = "0")Integer pageNumber){
         JSONObject response=new JSONObject();
         Map<String,Object> equalMap=new HashMap<>();
         Map<String,Object> likeMap=new HashMap<>();
@@ -155,7 +157,7 @@ public class TopicController {
         if(content !=null){
             likeMap.put("context",content);
         }
-        List<Topic> topics=topicService.load(equalMap,likeMap);
+        Page<Topic> topics=topicService.load(equalMap,likeMap,pageNumber);
         response.put("data",topics);
         response.put("status",1);
         response.put("message","Get Topic success");

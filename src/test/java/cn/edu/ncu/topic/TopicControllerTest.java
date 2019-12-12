@@ -48,7 +48,12 @@ public class TopicControllerTest {
     }
 
     @Test
-    public void delete() {
+    public void delete() throws URISyntaxException {
+        final String url=baseUrl+"/delete";
+        URI uri=new URI(url);
+
+
+
     }
 
     @Test
