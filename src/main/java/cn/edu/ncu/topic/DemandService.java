@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class DemandService  {
@@ -47,7 +48,7 @@ public class DemandService  {
     }
 
     /**
-     *
+     * find all Demand
      * @return demand list
      */
 
@@ -57,5 +58,15 @@ public class DemandService  {
         demands.forEach(list::add);
 
         return list;
+    }
+
+    /**
+     * find
+     * @param topicId demand's topicId
+     * @return demand
+     */
+    Demand findByTopicId(Long topicId){
+        return demandRepository.findById(topicId)
+                .orElseThrow(NoSuchElementException::new);
     }
 }
