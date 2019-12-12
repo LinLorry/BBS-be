@@ -19,22 +19,12 @@ public class DemandService  {
     }
 
     /**
-     * add Demand
-     * @param demand add a new demand
+     * addOrUpdate Demand
+     * @param demand addOrUpdate a new demand
      * @return Demand
      */
 
-    public Demand add(Demand demand){
-        return demandRepository.save(demand);
-    }
-
-    /**
-     * update Demand
-     * @param demand the demand will be update
-     * @return demand
-     */
-
-    public Demand update(Demand demand){
+    public Demand addOrUpdate(Demand demand){
         return demandRepository.save(demand);
     }
 
@@ -43,7 +33,7 @@ public class DemandService  {
      * @param topicId the topicId of which you want to delete
      */
 
-    void deleteDemandByTpoicId(Long topicId){
+    void deleteDemandByTopicId(Long topicId){
         demandRepository.deleteById(topicId);
     }
 
@@ -65,8 +55,10 @@ public class DemandService  {
      * @param topicId demand's topicId
      * @return demand
      */
-    Demand findByTopicId(Long topicId){
+    Demand loadById(Long topicId){
         return demandRepository.findById(topicId)
                 .orElseThrow(NoSuchElementException::new);
     }
+
+
 }
