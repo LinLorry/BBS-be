@@ -59,11 +59,22 @@ public class TopicControllerTest {
 
         System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
-        
 
     }
 
     @Test
-    public void find() {
+    public void find() throws URISyntaxException {
+        final String url = baseUrl + "/find";
+
+        URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        Assert.assertEquals(200, response.getStatusCodeValue());
     }
+
 }

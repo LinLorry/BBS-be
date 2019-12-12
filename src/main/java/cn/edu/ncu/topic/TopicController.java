@@ -158,7 +158,11 @@ public class TopicController {
             likeMap.put("context",content);
         }
         Page<Topic> topics=topicService.load(equalMap,likeMap,pageNumber);
-        response.put("data",topics);
+        JSONObject data = new JSONObject();
+        data.put("total", topics.getTotalPages());
+        data.put("works", topics.getContent());
+
+        response.put("data", data);
         response.put("status",1);
         response.put("message","Get Topic success");
         return response;
