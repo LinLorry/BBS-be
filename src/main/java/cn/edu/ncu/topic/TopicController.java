@@ -7,8 +7,10 @@ import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
 import cn.edu.ncu.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.logging.Log;
@@ -16,9 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User Controller
@@ -88,28 +88,42 @@ public class TopicController {
 
     @ResponseBody
     @PostMapping("/create")
-    public JSONObject create(@RequestBody JSONObject request){
+    public JSONObject create(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
         User user = SecurityUtil.getUser();
         //Demand demand = new Demand();
         Topic topic=new Topic();
+        String title= Optional.ofNullable(
+                request.getString("title")
+        ).orElseThrow(()->new MissingServletRequestParameterException(
+                "title","String"
+        ));
+        String content = Optional.ofNullable(
+                request.getString("content")
+        ).orElseThrow(() -> new MissingServletRequestParameterException(
+                "content", "String"
+        ));
+
+        /*
         Long id=request.getLong("id");
         String title=request.getString("title");
-        String content=request.getString("content");
-       // Boolean boutique=request.getBoolean("boutique");
+        String content=request.getString("content");*/
         LocalDate today = LocalDate.now();
         topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
-       // topic.setBoutique(boutique);
         topic.setCreateUser(user);
         topic.setContent(content);
         topic.setTitle(title);
-        topic.setId(id);
+        //topic.setId(id);
         //topic.setDemand(demand);
         try{
             response.put("data", topicService.add(topic));
             response.put("status", 1);
             response.put("message", "Create Topic Success.");
-        }catch (Exception e) {
+        }catch (DataIntegrityViolationException e){
+            response.put("status",0);
+            response.put("message","The topic already exists");
+        }
+        /*catch (Exception e) {
             response.put("status", 0);
             if (title == null) {
                 response.put("message", "title can't be null.");
@@ -119,7 +133,7 @@ public class TopicController {
                 logger.error(e);
                 response.put("message", "Create Topic Failed.");
             }
-        }
+        }*/
         return  response;
     }
 

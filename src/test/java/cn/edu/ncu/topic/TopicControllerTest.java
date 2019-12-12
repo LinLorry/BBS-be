@@ -36,9 +36,8 @@ public class TopicControllerTest {
         final String url = baseUrl + "/create";
         URI uri=new URI(url);
         JSONObject requestBody = new JSONObject();
-        requestBody.put("id",12L);
-        requestBody.put("title","测试3的title");
-        requestBody.put("content","测试3的content");
+        requestBody.put("title","测试4的title");
+        requestBody.put("content","测试4的content");
         requestBody.put("time","2019-12-12 12:12:00");
       //  requestBody.put("boutique",false);
        // requestBody.put("demand",null);
