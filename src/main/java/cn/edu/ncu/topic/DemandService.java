@@ -38,19 +38,6 @@ public class DemandService  {
     }
 
     /**
-     * find all Demand
-     * @return demand list
-     */
-
-    List<Demand> findAll(){
-        Iterable<Demand> demands = demandRepository.findAll();
-        List<Demand> list = new ArrayList<>();
-        demands.forEach(list::add);
-
-        return list;
-    }
-
-    /**
      * find
      * @param topicId demand's topicId
      * @return demand
