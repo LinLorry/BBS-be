@@ -1,0 +1,54 @@
+package cn.edu.ncu.topic;
+
+import cn.edu.ncu.topic.model.Demand;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/demand")
+public class DemandController {
+
+    private final DemandService demandService;
+
+    public DemandController(DemandService demandService) {
+        this.demandService = demandService;
+    }
+
+    /**
+     *
+     * @param request {
+     *     "topicId": topicId: Long[must],
+     *     "content": content: Sting[must],
+     *     "reward": reward: Integer
+     * }
+     * @return {
+     *     "status", 1，
+     *     "message", "Add Success"
+     * }
+     */
+    @ResponseBody
+    @PostMapping("/add")
+    public JSONObject add(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+        JSONObject response = new JSONObject();
+
+        Long topicId = Optional.of(request.getLong("topicId"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
+        String content =Optional.of(request.getString("content"))
+                .orElseThrow(() -> new MissingServletRequestParameterException("content", "String"));
+        Integer reward = request.getInteger("reward");
+
+        Demand demand = new Demand();
+        demand.setTopicId(topicId);
+        demand.setContent(content);
+        demand.setReward(reward);
+
+        response.put("data", demandService.add(demand));
+        response.put("status", 1);
+        response.put("message", "Add Success");
+
+        return response;
+    }
+}
