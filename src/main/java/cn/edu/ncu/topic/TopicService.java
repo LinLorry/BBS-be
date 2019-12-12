@@ -7,9 +7,12 @@ import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SpecificationUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -49,11 +52,12 @@ public class TopicService {
     }
 
     /**
-     * Find all Topics
-     * @return Topic Lists
+     *
+     * @param pageNumber
+     * @return
      */
-    List<Topic> findAll() {
-        return topicRepository.findAll();
+    Page<Topic>findAll(Integer pageNumber) {
+        return topicRepository.findAll(PageRequest.of(pageNumber,20));
     }
 
 
@@ -68,18 +72,21 @@ public class TopicService {
         return topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
+
     /**
-     * 模糊查询？
+     * 模糊查询分页查询?
      * @param equalMap
      * @param likeMap
      * @return
-     */
-    List<Topic> load(Map<String, Object> equalMap,
-                     Map<String, Object> likeMap) {
+*/
+    Page<Topic> load(Map<String, Object> equalMap,
+                     Map<String, Object> likeMap, Integer pageNumber) {
         SpecificationUtil specificationUtil = new SpecificationUtil();
         specificationUtil.addEqualMap(equalMap);
         specificationUtil.addLikeMap(likeMap);
         Specification<Topic> specification = specificationUtil.getSpecification();
-        return topicRepository.findAll(specification);
+        return topicRepository.findAll(specification, PageRequest.of(pageNumber, 20));
     }
+
+
 }
