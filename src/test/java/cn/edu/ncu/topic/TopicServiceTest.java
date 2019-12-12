@@ -10,8 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -69,10 +71,12 @@ public class TopicServiceTest {
     @Test
     @Transactional
     public void findAll() {
-        List<Topic> topics = topicService.findAll();
+        Integer pageNumber=0;
+        Page<Topic> topics = topicService.findAll(pageNumber);
         for (Topic topic:topics) {
             System.out.println(topic);
         }
+
     }
 
     @Test
