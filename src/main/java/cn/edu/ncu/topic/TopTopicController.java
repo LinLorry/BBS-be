@@ -3,6 +3,7 @@ package cn.edu.ncu.topic;
 import cn.edu.ncu.topic.model.TopTopic;
 import cn.edu.ncu.topic.model.Topic;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,19 +24,22 @@ public class TopTopicController {
     }
 
     /**
-     *
      * @param request
      * @return 返回json串，data,status,message
      * @throws MissingServletRequestParameterException
      */
-    @ResponseBody
-    @RequestMapping("/add")
-    public JSONObject add(@RequestBody JSONObject request)throws MissingServletRequestParameterException{
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public JSONObject create(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
 
-        Long topicId = Optional.ofNullable(request.getLong("id"))
-                .orElseThrow(() -> new MissingServletRequestParameterException(
-                        "id", "Long"));
+        Long topicId = Optional.ofNullable(
+                request.getLong("id")
+        ).orElseThrow(() -> new MissingServletRequestParameterException(
+                "id", "Long"
+        ));
+
         TopTopic topTopic = new TopTopic();
         topTopic.setTopicId(topicId);
 
@@ -43,28 +47,25 @@ public class TopTopicController {
             response.put("data", topTopicService.add(topTopic));
             response.put("status", 1);
             response.put("message", "Add Success.");
-        }catch (NoSuchElementException e){
-            response.put("status",0);
-            response.put("message","The topic isn't exist");
+        } catch (NoSuchElementException e) {
+            response.put("status", 0);
+            response.put("message", "The topic isn't exist");
         }
 
         return response;
     }
+
     /**
-     *
-     * @param request
-     * @return 返回status,message
+     * @param id
+     * @return 返回status, message
      */
-    @ResponseBody
     @Transactional
-    @RequestMapping("/delete")
-    public JSONObject deleteTopTopicByTopicId(@RequestBody JSONObject request)
-            throws MissingServletRequestParameterException{
+    @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public JSONObject delete(@RequestParam Long id) {
         JSONObject response = new JSONObject();
-        Long topicId = Optional.ofNullable(request.getLong("id"))
-                .orElseThrow(() -> new MissingServletRequestParameterException(
-                        "id", "Long"));
-        topTopicService.deleteTopTopicByTopicId(topicId);
+
+        topTopicService.deleteByTopicId(id);
         response.put("status", 1);
         response.put("message", "Delete top topic success.");
 
@@ -75,18 +76,15 @@ public class TopTopicController {
      *
      * @return 返回json，包括status,message,data
      */
-    @ResponseBody
-    @GetMapping("/get")
-    public JSONObject find() {
+    @GetMapping
+    public JSONObject get() {
         JSONObject response = new JSONObject();
-
-        List<TopTopic> topTopics = topTopicService.findAll();
 
         List<Topic> topics = new ArrayList<>();
 
-        for (TopTopic topTopic : topTopics) {
-            topics.add(topTopic.getTopic());
-        }
+        topTopicService.findAll().forEach(
+                topTopic -> topics.add(topTopic.getTopic())
+        );
 
         response.put("status", 1);
         response.put("message", "Get top topics success.");
