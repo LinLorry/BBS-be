@@ -2,7 +2,6 @@ package cn.edu.ncu.topic;
 
 import cn.edu.ncu.util.TestUtil;
 import com.alibaba.fastjson.JSONObject;
-import net.bytebuddy.utility.RandomString;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -30,8 +28,7 @@ public class TopTopicControllerTest {
     private static final String baseUrl = "/api/topTopic";
     @Test
     public void add() throws URISyntaxException {
-        final String url=baseUrl+"/add";
-        URI uri=new URI(url);
+        URI uri=new URI(baseUrl);
 
         JSONObject requestBody=new JSONObject();
         requestBody.put("id", 3L);
@@ -44,21 +41,21 @@ public class TopTopicControllerTest {
 
 
     @Test
-    public void deleteTopTopicByTopicId() throws URISyntaxException {
-        final String url=baseUrl+"/delete";
-        URI uri=new URI(url);
-        JSONObject requestBody=new JSONObject();
-        requestBody.put("id",2L);
-        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
-        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
+    public void delete() throws URISyntaxException {
+        URI uri=new URI(baseUrl + "?id=1");
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate.exchange(
+                uri, HttpMethod.DELETE, request, JSONObject.class);
+
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
     public void find() throws URISyntaxException {
-        final String url=baseUrl+"/get";
-        URI uri=new URI(url);
+        URI uri=new URI(baseUrl);
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate
@@ -67,7 +64,4 @@ public class TopTopicControllerTest {
         System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
     }
-
-
-
 }
