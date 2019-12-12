@@ -36,11 +36,11 @@ public class TopicControllerTest {
         final String url = baseUrl + "/create";
         URI uri=new URI(url);
         JSONObject requestBody = new JSONObject();
-        requestBody.put("id",2L);
-        requestBody.put("title","测试2的title");
-        requestBody.put("content","测试2的content");
+        requestBody.put("id",12L);
+        requestBody.put("title","测试3的title");
+        requestBody.put("content","测试3的content");
         requestBody.put("time","2019-12-12 12:12:00");
-        requestBody.put("boutique",false);
+      //  requestBody.put("boutique",false);
        // requestBody.put("demand",null);
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);

@@ -96,10 +96,10 @@ public class TopicController {
         Long id=request.getLong("id");
         String title=request.getString("title");
         String content=request.getString("content");
-        Boolean boutique=request.getBoolean("boutique");
+       // Boolean boutique=request.getBoolean("boutique");
         LocalDate today = LocalDate.now();
         topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
-        topic.setBoutique(boutique);
+       // topic.setBoutique(boutique);
         topic.setCreateUser(user);
         topic.setContent(content);
         topic.setTitle(title);
