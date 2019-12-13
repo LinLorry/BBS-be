@@ -1,6 +1,7 @@
 package cn.edu.ncu.topic;
 
 import cn.edu.ncu.topic.model.Demand;
+import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.UserService;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
@@ -17,10 +18,13 @@ public class DemandController {
 
     private final DemandService demandService;
 
+    private final TopicService topicService;
+
     private final UserService userService;
 
-    public DemandController(DemandService demandService, UserService userService) {
+    public DemandController(DemandService demandService, TopicService topicService, UserService userService) {
         this.demandService = demandService;
+        this.topicService = topicService;
         this.userService = userService;
     }
 
@@ -50,29 +54,41 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("content", "String"));
         Integer reward = request.getInteger("reward");
 
-        User user = SecurityUtil.getUser();
-        Integer score = user.getScore();
+        try{
+            Topic topic = topicService.loadTopicById(topicId);
 
-        if (score >= reward){
-            score -= reward;
-            user.setScore(score);
+            if(topic.getCreateUser().getId().equals(SecurityUtil.getUserId())){
+                User user = SecurityUtil.getUser();
+                Integer score = user.getScore();
 
-            userService.update(user);
+                if (score >= reward){
+                    score -= reward;
+                    user.setScore(score);
 
-            Demand demand = new Demand();
-            demand.setTopicId(topicId);
-            demand.setContent(content);
-            demand.setReward(reward);
+                    userService.update(user);
 
-            response.put("data", demandService.addOrUpdate(demand));
-            response.put("status", 1);
-            response.put("message", "Add Success");
-        }
-        else {
+                    Demand demand = new Demand();
+                    demand.setTopicId(topicId);
+                    demand.setContent(content);
+                    demand.setReward(reward);
+
+                    response.put("data", demandService.addOrUpdate(demand));
+                    response.put("status", 1);
+                    response.put("message", "Add Success");
+                }
+                else {
+                    response.put("status", 0);
+                    response.put("message", "Lack of score");
+                }
+            }
+            else {
+                response.put("status", 0);
+                response.put("message", "No permission to update.");
+            }
+        }catch (NoSuchElementException e){
             response.put("status", 0);
-            response.put("message", "Lack of score");
+            response.put("message", "The Id is not exist.");
         }
-
         return response;
     }
 
@@ -97,7 +113,7 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
         try {
-            Demand demand = demandService.loadById(topicId);
+            Demand demand = demandService.loadByTopicId(topicId);
             Optional.ofNullable(
                     request.getString("content")
             ).ifPresent(demand::setContent);
@@ -153,7 +169,7 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
         try {
-            Demand demand = demandService.loadById(topicId);
+            Demand demand = demandService.loadByTopicId(topicId);
             Integer reward = demand.getReward();
 
             if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
@@ -163,7 +179,7 @@ public class DemandController {
                 user.setScore(score);
 
                 userService.update(user);
-                demandService.deleteDemandByTopicId(topicId);
+                demandService.deleteByTopicId(topicId);
 
                 response.put("status", 1);
                 response.put("message", "The demand has been delete");
@@ -195,7 +211,7 @@ public class DemandController {
         Long topicId = Optional.of(request.getLong("topicId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
-        response.put("data", demandService.loadById(topicId));
+        response.put("data", demandService.loadByTopicId(topicId));
         response.put("status", 1);
         response.put("message", "Load Success");
 
@@ -213,7 +229,7 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("userId", "Long"));
 
         try {
-            Demand demand = demandService.loadById(topicId);
+            Demand demand = demandService.loadByTopicId(topicId);
             User user = userService.loadById(userId);
 
             if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
