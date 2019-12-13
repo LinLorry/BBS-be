@@ -33,8 +33,24 @@ public class TopicControllerTest {
     @Test
     public void create() throws URISyntaxException {
         URI uri=new URI(baseUrl);
-        JSONObject requestBody = new JSONObject();
 
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("title", RandomString.make());
+        requestBody.put("content", RandomString.make());
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
+        ResponseEntity<JSONObject> response = restTemplate.exchange(
+                uri, HttpMethod.PUT, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void update() throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+
+        JSONObject requestBody = new JSONObject();
         requestBody.put("title", RandomString.make());
         requestBody.put("content", RandomString.make());
 
@@ -48,7 +64,7 @@ public class TopicControllerTest {
 
     @Test
     public void delete() throws URISyntaxException {
-        URI uri=new URI(baseUrl + "?id=1");
+        URI uri = new URI(baseUrl + "?id=1");
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate
