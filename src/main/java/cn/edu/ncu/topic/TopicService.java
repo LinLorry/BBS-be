@@ -34,6 +34,10 @@ public class TopicService {
         topicRepository.deleteById(id);
     }
 
+    public boolean checkById(Long id) {
+        return topicRepository.existsById(id);
+    }
+
     /**
      * Load All Topic
      * @param pageNumber the page number.
