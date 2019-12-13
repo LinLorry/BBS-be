@@ -166,4 +166,21 @@ public class TopicController {
 
         return response;
     }
+
+    @GetMapping("/hot")
+    public JSONObject getHot(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllOrderByCountComment(pageNumber);
+
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get all boutique topic success.");
+        response.put("data", data);
+
+        return response;
+    }
 }
