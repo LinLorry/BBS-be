@@ -1,10 +1,8 @@
 package cn.edu.ncu.topic;
 
-import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
-import com.alibaba.fastjson.JSONObject;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,15 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
-
-import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -59,7 +52,7 @@ public class TopicServiceTest {
         topic.setDemand(null);
         LocalDate today = LocalDate.now();
         topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
-        topicService.add(topic);
+        topicService.addOrUpdate(topic);
         System.out.println(topic);
     }
 
@@ -72,7 +65,7 @@ public class TopicServiceTest {
     @Transactional
     public void findAll() {
         Integer pageNumber=0;
-        Page<Topic> topics = topicService.findAll(pageNumber);
+        Page<Topic> topics = topicService.loadAll(pageNumber);
         for (Topic topic:topics) {
             System.out.println(topic);
         }
@@ -81,6 +74,6 @@ public class TopicServiceTest {
 
     @Test
     public void loadTopicById() {
-        Topic topic=topicService.loadTopicById(1L);
+        Topic topic=topicService.loadById(1L);
     }
 }

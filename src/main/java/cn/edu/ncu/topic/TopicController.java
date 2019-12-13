@@ -1,17 +1,13 @@
 package cn.edu.ncu.topic;
 
-import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
-import cn.edu.ncu.user.UserService;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
-import cn.edu.ncu.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -116,7 +112,7 @@ public class TopicController {
         //topic.setId(id);
         //topic.setDemand(demand);
         try{
-            response.put("data", topicService.add(topic));
+            response.put("data", topicService.addOrUpdate(topic));
             response.put("status", 1);
             response.put("message", "Create Topic Success.");
         }catch (DataIntegrityViolationException e){
