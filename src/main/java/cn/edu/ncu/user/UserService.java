@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,7 +39,12 @@ public class UserService implements UserDetailsService {
      * @param user the new user have raw password.
      * @return new user.
      */
-    @CachePut(value = "userCache", key = "#user.username")
+    @Caching(
+            put = {
+                    @CachePut(value = "userCache", key = "#user.id"),
+                    @CachePut(value = "userCache", key = "#user.username")
+            }
+    )
     public User add(User user) {
         String hash = encoder.encode(salt + user.getPassword().trim() + salt);
         user.setPassword(hash);
@@ -50,7 +56,12 @@ public class UserService implements UserDetailsService {
      * Update User
      * @param user the user will be update.
      */
-    @CachePut(value = "userCache", key = "#user.id")
+    @Caching(
+            put = {
+                    @CachePut(value = "userCache", key = "#user.id"),
+                    @CachePut(value = "userCache", key = "#user.username")
+            }
+    )
     public User update(User user) {
         return userRepository.save(user);
     }
@@ -59,7 +70,12 @@ public class UserService implements UserDetailsService {
      * Update User Password
      * @param user the user with new raw password.
      */
-    @CacheEvict(value= "userCache", key= "#user.id", allEntries= true)
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "userCache", key = "#user.id"),
+                    @CacheEvict(value = "userCache", key = "#user.username")
+            }
+    )
     public void updatePassword(User user) {
         String hash = encoder.encode(salt + user.getPassword().trim() + salt);
         user.setPassword(hash);
@@ -75,6 +91,10 @@ public class UserService implements UserDetailsService {
      */
     @Cacheable(value= "userCache", key= "#id")
     public User loadById(Long id) throws NoSuchElementException {
+        return loadByIdNoCache(id);
+    }
+
+    public User loadByIdNoCache(Long id) throws NoSuchElementException {
         return userRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
