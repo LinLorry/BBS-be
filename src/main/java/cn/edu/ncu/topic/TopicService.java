@@ -70,4 +70,8 @@ public class TopicService {
         Specification<Topic> specification = specificationUtil.getSpecification();
         return topicRepository.findAll(specification, PageRequest.of(pageNumber, 20));
     }
+
+    public Page<Topic> loadAllBoutique(Integer pageNumber) {
+        return topicRepository.findAllByBoutiqueIsTrue(PageRequest.of(pageNumber, 20));
+    }
 }
