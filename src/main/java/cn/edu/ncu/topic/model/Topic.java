@@ -1,15 +1,16 @@
 package cn.edu.ncu.topic.model;
 
-import cn.edu.ncu.comment.model.Comment;
 import cn.edu.ncu.user.model.User;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * The Topic Model
@@ -31,6 +32,7 @@ public class Topic implements Serializable {
 
     @Column(nullable = false)
     @Type(type = "text")
+    @JsonIgnore
     private String content;
 
     @ManyToOne(optional = false)
@@ -43,14 +45,10 @@ public class Topic implements Serializable {
     @Column(nullable = false, columnDefinition = "Boolean default false")
     private Boolean boutique = false;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", referencedColumnName = "topic_id")
     @JsonIgnore
     private Demand demand;
-
-    @OneToMany(mappedBy = "topic")
-    @JsonIgnore
-    private Set<Comment> comments;
 
     public Long getId() {
         return id;
@@ -108,6 +106,16 @@ public class Topic implements Serializable {
         this.demand = demand;
     }
 
+    @JsonAnyGetter
+    public Map<String, Object> getInfo() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("createUserName", createUser.getUsername());
+        map.put("createUserId", createUser.getId());
+
+        return map;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -148,12 +156,6 @@ public class Topic implements Serializable {
             stringBuilder.append(demand);
         } else {
             stringBuilder.append("null");
-        }
-        stringBuilder.append(", commentsSize=");
-        if (comments != null) {
-            stringBuilder.append(comments.size());
-        } else {
-            stringBuilder.append(0);
         }
 
         stringBuilder.append('}');
