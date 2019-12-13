@@ -36,8 +36,8 @@ public class TopTopicServiceTest {
     }
 
     @Test
-    public void findAll() {
-        List<TopTopic> topTopics=topTopicService.findAll();
+    public void loadAll() {
+        List<TopTopic> topTopics = topTopicService.loadAll();
 
         topTopics.forEach(System.out::println);
     }

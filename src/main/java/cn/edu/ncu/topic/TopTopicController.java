@@ -82,7 +82,7 @@ public class TopTopicController {
 
         List<Topic> topics = new ArrayList<>();
 
-        topTopicService.findAll().forEach(
+        topTopicService.loadAll().forEach(
                 topTopic -> topics.add(topTopic.getTopic())
         );
 
