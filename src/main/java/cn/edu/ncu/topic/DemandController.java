@@ -194,24 +194,25 @@ public class DemandController {
 
     /**
      *
-     * @param request "topicId": topicId: Long[must],
+     * @param topicId: topicId: Long[must],
      * @return {
      *      "status", 1，
      *      "message", "Load Success"
      * }
      */
     @ResponseBody
-    @PostMapping("/loadById")
-    public JSONObject loadById(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+    @GetMapping("/loadById")
+    public JSONObject loadById(@RequestParam(required = true)Long topicId){
         JSONObject response = new JSONObject();
 
-        Long topicId = Optional.of(request.getLong("topicId"))
-                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
-
-        response.put("data", demandService.loadByTopicId(topicId));
-        response.put("status", 1);
-        response.put("message", "Load Success");
-
+        try{
+            response.put("data", demandService.loadByTopicId(topicId));
+            response.put("status", 1);
+            response.put("message", "Load Success");
+        }catch (NoSuchElementException e){
+            response.put("status", 0);
+            response.put("message", "The Id is not exist.");
+        }
         return response;
     }
 
