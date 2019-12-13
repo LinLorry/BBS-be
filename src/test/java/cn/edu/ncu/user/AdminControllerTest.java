@@ -1,8 +1,8 @@
 package cn.edu.ncu.user;
 
-
 import cn.edu.ncu.util.TestUtil;
 import com.alibaba.fastjson.JSONObject;
+import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +22,47 @@ import static org.junit.Assert.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AdminControllerTest {
 
+    private static final String baseUrl = "/api/admin";
+
     @Autowired
     private TestRestTemplate restTemplate;
+
     @Autowired
     private TestUtil testUtil;
-    private static final String baseUrl = "/api/admin";
+
+    @Test
+    public void addBoutique() throws URISyntaxException {
+        URI uri = new URI(baseUrl + "/boutique?id=1");
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate.exchange(
+                uri, HttpMethod.POST, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void update() throws URISyntaxException {
+        URI uri=new URI(baseUrl + "/topic");
+        JSONObject requestBody = new JSONObject();
+
+        requestBody.put("id", 1L);
+        requestBody.put("title", RandomString.make());
+        requestBody.put("content", RandomString.make());
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
     @Test
     public void deleteTopic() throws URISyntaxException {
-        URI uri=new URI(baseUrl + "?id=2");
+        URI uri = new URI(baseUrl + "/topic?id=1");
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate.exchange(
@@ -38,33 +71,4 @@ public class AdminControllerTest {
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
-
-    @Test
-    public void addBoutique() throws URISyntaxException {
-        URI uri=new URI(baseUrl + "?id=5");
-        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
-
-        ResponseEntity<JSONObject> response = restTemplate.exchange(
-                uri, HttpMethod.GET, request, JSONObject.class);
-
-        System.out.println(response.getBody());
-        assertEquals(200, response.getStatusCodeValue());
-    }
-    @Test
-    public void update() throws URISyntaxException {
-        URI uri=new URI(baseUrl);
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("id",4L);
-        requestBody.put("title","测试修改的title");
-        requestBody.put("content","测试修改的的content");
-        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
-        ResponseEntity<JSONObject> response = restTemplate
-                .exchange(uri, HttpMethod.POST, request, JSONObject.class);
-        System.out.println(response.getBody());
-        assertEquals(200, response.getStatusCodeValue());
-
-    }
-
-
-
 }
