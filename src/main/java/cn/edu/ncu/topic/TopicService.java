@@ -78,4 +78,8 @@ public class TopicService {
     public Page<Topic> loadAllBoutique(Integer pageNumber) {
         return topicRepository.findAllByBoutiqueIsTrue(PageRequest.of(pageNumber, 20));
     }
+
+    public Page<Topic> loadAllOrderByCountComment(Integer pageNumber) {
+        return topicRepository.findAllOrderByCountComment(PageRequest.of(pageNumber, 20));
+    }
 }
