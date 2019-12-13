@@ -2,10 +2,9 @@ package cn.edu.ncu.topic.rep;
 
 import cn.edu.ncu.topic.model.Topic;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -30,4 +29,11 @@ public interface TopicRepository extends CrudRepository<Topic, Long>, JpaSpecifi
     Topic save(Topic topic);
 
     Page<Topic> findAllByBoutiqueIsTrue(Pageable pageable);
+
+    @Query("SELECT topic " +
+            "FROM Topic topic " +
+            "LEFT JOIN Comment comment ON comment.topic = topic " +
+            "GROUP BY (topic.id) " +
+            "ORDER BY COUNT(comment) DESC ")
+    Page<Topic> findAllOrderByCountComment(Pageable pageable);
 }
