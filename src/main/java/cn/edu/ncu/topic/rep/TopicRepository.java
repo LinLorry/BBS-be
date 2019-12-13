@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -24,10 +23,6 @@ public interface TopicRepository extends CrudRepository<Topic, Long>, JpaSpecifi
 
     Page<Topic>findAll(Pageable pageable);
 
-    boolean existsById(long id);
-
-    Topic save(Topic topic);
-
     Page<Topic> findAllByBoutiqueIsTrue(Pageable pageable);
 
     @Query("SELECT topic " +
@@ -36,4 +31,11 @@ public interface TopicRepository extends CrudRepository<Topic, Long>, JpaSpecifi
             "GROUP BY (topic.id) " +
             "ORDER BY COUNT(comment) DESC ")
     Page<Topic> findAllOrderByCountComment(Pageable pageable);
+
+    @Query("SELECT topic " +
+            "FROM Topic topic " +
+            "INNER JOIN Demand demand ON demand.topic = topic " +
+            "WHERE demand.winner = null " +
+            "ORDER BY topic.id")
+    Page<Topic> findAllByDemandExists(Pageable pageable);
 }
