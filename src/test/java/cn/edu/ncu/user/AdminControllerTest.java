@@ -50,6 +50,21 @@ public class AdminControllerTest {
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
+    @Test
+    public void update() throws URISyntaxException {
+        URI uri=new URI(baseUrl);
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("id",4L);
+        requestBody.put("title","测试修改的title");
+        requestBody.put("content","测试修改的的content");
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JSONObject.class);
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+
+    }
+
 
 
 }
