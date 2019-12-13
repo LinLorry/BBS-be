@@ -51,12 +51,13 @@ public class TopicControllerTest {
         URI uri = new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
+        requestBody.put("id", 1);
         requestBody.put("title", RandomString.make());
         requestBody.put("content", RandomString.make());
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.exchange(
-                uri, HttpMethod.PUT, request, JSONObject.class);
+                uri, HttpMethod.POST, request, JSONObject.class);
 
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
@@ -75,10 +76,37 @@ public class TopicControllerTest {
     }
 
     @Test
+    public void get() throws URISyntaxException {
+        final String url = baseUrl + "/1";
+        URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
     public void find() throws URISyntaxException {
         final String url = baseUrl + "/find";
 
         URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getAll() throws URISyntaxException {
+        URI uri = new URI(baseUrl);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
