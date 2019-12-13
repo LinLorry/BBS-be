@@ -64,7 +64,7 @@ public class TopicControllerTest {
 
     @Test
     public void delete() throws URISyntaxException {
-        URI uri = new URI(baseUrl + "?id=1");
+        URI uri = new URI(baseUrl + "?id=7");
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate
@@ -78,6 +78,20 @@ public class TopicControllerTest {
     public void find() throws URISyntaxException {
         final String url = baseUrl + "/find";
 
+        URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getBoutique() throws URISyntaxException {
+        final String url = baseUrl + "/getBoutique";
         URI uri = new URI(url);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
