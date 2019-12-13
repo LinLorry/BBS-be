@@ -38,14 +38,14 @@ public class DemandServiceTest {
 
     @Test
     public void deleteByTopicId() {
-        demandService.deleteByTopicId(1L);
+        demandService.deleteById(1L);
     }
 
     @Test
     public void loadByTopicId(){
-        Demand demand = demandService.loadByTopicId(1L);
+        Demand demand = demandService.loadById(1L);
 
-        demandService.loadByTopicId(1L);
+        demandService.loadById(1L);
         System.out.println(demand);
     }
 }

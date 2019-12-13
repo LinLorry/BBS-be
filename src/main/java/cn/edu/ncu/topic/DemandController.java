@@ -113,7 +113,7 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
         try {
-            Demand demand = demandService.loadByTopicId(topicId);
+            Demand demand = demandService.loadById(topicId);
             Optional.ofNullable(
                     request.getString("content")
             ).ifPresent(demand::setContent);
@@ -166,7 +166,7 @@ public class DemandController {
         JSONObject response = new JSONObject();
 
         try {
-            Demand demand = demandService.loadByTopicId(topicId);
+            Demand demand = demandService.loadById(topicId);
             Integer reward = demand.getReward();
 
             if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
@@ -176,7 +176,7 @@ public class DemandController {
                 user.setScore(score);
 
                 userService.update(user);
-                demandService.deleteByTopicId(topicId);
+                demandService.deleteById(topicId);
 
                 response.put("status", 1);
                 response.put("message", "The demand has been delete");
@@ -206,7 +206,7 @@ public class DemandController {
         JSONObject response = new JSONObject();
 
         try{
-            response.put("data", demandService.loadByTopicId(topicId));
+            response.put("data", demandService.loadById(topicId));
             response.put("status", 1);
             response.put("message", "Load Success");
         }catch (NoSuchElementException e){
@@ -227,7 +227,7 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("userId", "Long"));
 
         try {
-            Demand demand = demandService.loadByTopicId(topicId);
+            Demand demand = demandService.loadById(topicId);
             User user = userService.loadById(userId);
 
             if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){

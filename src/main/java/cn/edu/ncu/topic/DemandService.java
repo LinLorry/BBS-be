@@ -1,12 +1,9 @@
 package cn.edu.ncu.topic;
 
-
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.rep.DemandRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -33,7 +30,7 @@ public class DemandService  {
      * @param topicId the topicId of which you want to delete
      */
 
-    void deleteDemandByTopicId(Long topicId){
+    void deleteById(Long topicId){
         demandRepository.deleteById(topicId);
     }
 
@@ -42,10 +39,8 @@ public class DemandService  {
      * @param topicId demand's topicId
      * @return demand
      */
-    Demand loadById(Long topicId){
+    public Demand loadById(Long topicId){
         return demandRepository.findById(topicId)
                 .orElseThrow(NoSuchElementException::new);
     }
-
-
 }
