@@ -2,6 +2,7 @@ package cn.edu.ncu.topic;
 
 import cn.edu.ncu.util.TestUtil;
 import com.alibaba.fastjson.JSONObject;
+import net.bytebuddy.utility.RandomString;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,30 +22,32 @@ import java.net.URISyntaxException;
 public class DemandControllerTest {
 
     private static final String baseUrl = "/api/demand";
+
     @Autowired
     private TestRestTemplate restTemplate;
+
     @Autowired
     private TestUtil testUtil;
+
     @Test
     public void add() throws URISyntaxException {
-        final String url = baseUrl + "/add";
-        URI uri=new URI(url);
+        URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 4L);
-        requestBody.put("content","测试的demand1");
-        requestBody.put("reward", 0);
+        requestBody.put("topicId", 2L);
+        requestBody.put("content", RandomString.make());
+        requestBody.put("reward", 5);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
-        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
-        System.out.println(response);
+        ResponseEntity<JSONObject> response = restTemplate.exchange(
+                uri, HttpMethod.PUT,request, JSONObject.class);
+        System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
     public void update() throws URISyntaxException {
-        final String url = baseUrl + "/update";
-        URI uri=new URI(url);
+        URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
         requestBody.put("topicId", 4L);
@@ -53,33 +56,20 @@ public class DemandControllerTest {
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
-        System.out.println(response);
-        Assert.assertEquals(200, response.getStatusCodeValue());
-    }
-
-    @Test
-    public void delete() throws URISyntaxException{
-        final String url=baseUrl+"/delete?topicId="+1L;
-        URI uri=new URI(url);
-
-        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
-
-        ResponseEntity<JSONObject> response = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
 
         System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
     }
 
     @Test
-    public void loadById() throws URISyntaxException{
-        final String url=baseUrl+"/loadById?topicId="+4L;
+    public void delete() throws URISyntaxException{
+        final String url = baseUrl + "?topicId=2";
         URI uri=new URI(url);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+                .exchange(uri, HttpMethod.DELETE, request, JSONObject.class);
 
         System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
@@ -87,16 +77,16 @@ public class DemandControllerTest {
 
     @Test
     public void setWinner() throws URISyntaxException {
-        final String url = baseUrl + "/setWinner";
+        final String url = baseUrl + "/winner";
         URI uri=new URI(url);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 4L);
+        requestBody.put("topicId", 2L);
         requestBody.put("userId", 2L);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
-        System.out.println(response);
+        System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
     }
 }

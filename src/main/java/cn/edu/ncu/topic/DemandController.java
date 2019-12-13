@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -21,6 +22,14 @@ public class DemandController {
     private final TopicService topicService;
 
     private final UserService userService;
+
+    private final static JSONObject permission;
+
+    static {
+        permission = new JSONObject();
+        permission.put("status", 0);
+        permission.put("message", "No permission to update.");
+    }
 
     public DemandController(DemandService demandService, TopicService topicService, UserService userService) {
         this.demandService = demandService;
@@ -43,9 +52,10 @@ public class DemandController {
      *     "message", "Lack of score"
      * }
      */
-    @ResponseBody
-    @PostMapping("/add")
-    public JSONObject add(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+    @PutMapping
+    @Transactional
+    public JSONObject add(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException{
         JSONObject response = new JSONObject();
 
         Long topicId = Optional.of(request.getLong("topicId"))
@@ -54,41 +64,41 @@ public class DemandController {
                 .orElseThrow(() -> new MissingServletRequestParameterException("content", "String"));
         Integer reward = request.getInteger("reward");
 
-        try{
+        try {
             Topic topic = topicService.loadTopicById(topicId);
+            User user = SecurityUtil.getUser();
 
-            if(topic.getCreateUser().getId().equals(SecurityUtil.getUserId())){
-                User user = SecurityUtil.getUser();
-                Integer score = user.getScore();
-
-                if (score >= reward){
-                    score -= reward;
-                    user.setScore(score);
-
-                    userService.update(user);
-
-                    Demand demand = new Demand();
-                    demand.setTopicId(topicId);
-                    demand.setContent(content);
-                    demand.setReward(reward);
-
-                    response.put("data", demandService.addOrUpdate(demand));
-                    response.put("status", 1);
-                    response.put("message", "Add Success");
-                }
-                else {
-                    response.put("status", 0);
-                    response.put("message", "Lack of score");
-                }
-            }
-            else {
+            if (!topic.getCreateUser().getId().equals(user.getId())) {
                 response.put("status", 0);
                 response.put("message", "No permission to update.");
+                return response;
             }
-        }catch (NoSuchElementException e){
+
+            Integer score = user.getScore();
+
+            if (score >= reward) {
+                score -= reward;
+                user.setScore(score);
+
+                userService.update(user);
+
+                Demand demand = new Demand();
+                demand.setTopicId(topicId);
+                demand.setContent(content);
+                demand.setReward(reward);
+
+                response.put("data", demandService.addOrUpdate(demand));
+                response.put("status", 1);
+                response.put("message", "Add Success");
+            } else {
+                response.put("status", 0);
+                response.put("message", "Lack of score");
+            }
+        } catch (NoSuchElementException e) {
             response.put("status", 0);
             response.put("message", "The Id is not exist.");
         }
+
         return response;
     }
 
@@ -104,51 +114,51 @@ public class DemandController {
      *     "message", "Add Success"
      * }
      */
-    @ResponseBody
-    @PostMapping("/update")
-    public JSONObject update(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+    @PostMapping
+    @Transactional
+    public JSONObject update(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException{
         JSONObject response = new JSONObject();
-
-        Long topicId = Optional.of(request.getLong("topicId"))
-                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
+        User user = SecurityUtil.getUser();
 
         try {
-            Demand demand = demandService.loadById(topicId);
+            Demand demand = demandService.loadById(Optional.ofNullable(
+                    request.getLong("topicId")
+            ).orElseThrow(() -> new MissingServletRequestParameterException
+                    ("topicId", "Long")
+            ));
+            if (judge(demand)) return permission;
+
             Optional.ofNullable(
                     request.getString("content")
             ).ifPresent(demand::setContent);
-            Optional.ofNullable(
-                    request.getInteger("reward")
-            ).ifPresent(reward -> {
-                User user = SecurityUtil.getUser();
+
+            Integer reward = request.getInteger("reward");
+
+            if (reward != null) {
                 Integer score = user.getScore();
                 Integer lastReward = demand.getReward();
 
                 score = score - reward + lastReward;
                 user.setScore(score);
 
-                if (score >= 0){
+                if (score >= 0) {
                     userService.update(user);
                     demand.setReward(reward);
 
-                    if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
-                        response.put("data", demandService.addOrUpdate(demand));
-                        response.put("status", 1);
-                        response.put("message", "Update Success");
-                    }
-                    else {
-                        response.put("status", 0);
-                        response.put("message", "No permission to update.");
-                    }
-                }else {
+                    response.put("data", demandService.addOrUpdate(demand));
+                    response.put("status", 1);
+                    response.put("message", "Update Success");
+                } else {
                     response.put("status", 0);
                     response.put("message", "Lack of score");
                 }
-            });
-        }catch (NoSuchElementException e){
+            }
+        } catch (NoSuchElementException e) {
             response.put("status", 0);
             response.put("message", "The Id is not exist.");
         }
+
         return response;
     }
 
@@ -160,107 +170,84 @@ public class DemandController {
      *      "message", "The demand has been delete"
      * }
      */
-    @ResponseBody
-    @GetMapping("/delete")
+    @DeleteMapping
+    @Transactional
     public JSONObject delete(@RequestParam Long topicId){
         JSONObject response = new JSONObject();
+        User user = SecurityUtil.getUser();
 
         try {
             Demand demand = demandService.loadById(topicId);
-            Integer reward = demand.getReward();
+            if (judge(demand)) return permission;
 
-            if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
-                User user = SecurityUtil.getUser();
+            if (demand.getWinner() == null) {
+                Integer reward = demand.getReward();
                 Integer score = user.getScore();
+
                 score += reward;
                 user.setScore(score);
 
                 userService.update(user);
-                demandService.deleteById(topicId);
-
-                response.put("status", 1);
-                response.put("message", "The demand has been delete");
             }
-            else {
-                response.put("status", 0);
-                response.put("message", "No permission to delete.");
-            }
-        }catch (NoSuchElementException e){
-            response.put("status", 0);
-            response.put("message", "The Id is not exist.");
-        }
-        return response;
-    }
 
-    /**
-     *
-     * @param topicId: topicId: Long[must],
-     * @return {
-     *      "status", 1，
-     *      "message", "Load Success"
-     * }
-     */
-    @ResponseBody
-    @GetMapping("/loadById")
-    public JSONObject loadById(@RequestParam Long topicId){
-        JSONObject response = new JSONObject();
+            demandService.deleteById(topicId);
 
-        try{
-            response.put("data", demandService.loadById(topicId));
             response.put("status", 1);
-            response.put("message", "Load Success");
-        }catch (NoSuchElementException e){
+            response.put("message", "The demand has been delete");
+
+        } catch (NoSuchElementException e) {
             response.put("status", 0);
             response.put("message", "The Id is not exist.");
         }
+
         return response;
     }
 
-    @ResponseBody
-    @PostMapping("/setWinner")
-    public JSONObject setWinner(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
+    @PostMapping("/winner")
+    @Transactional
+    public JSONObject setWinner(@RequestBody JSONObject request)
+            throws Exception {
         JSONObject response = new JSONObject();
 
-        Long topicId = Optional.of(request.getLong("topicId"))
-                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
         Long userId = Optional.of(request.getLong("userId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("userId", "Long"));
 
         try {
-            Demand demand = demandService.loadById(topicId);
+            Demand demand = demandService.loadById(Optional.ofNullable(
+                    request.getLong("topicId")
+            ).orElseThrow(() -> new MissingServletRequestParameterException
+                    ("topicId", "Long")
+            ));
+            if (judge(demand)) return permission;
+
             User user = userService.loadById(userId);
 
-            if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
-                if (demand.getWinner() != null){
-                    response.put("status", 0);
-                    response.put("message", "The winner has been already set.");
-                }
-                else if(userId.equals(SecurityUtil.getUserId())){
-                    response.put("status", 0);
-                    response.put("message", "The winner can't be yourself.");
-                }
-                else {
-                    demand.setWinner(user);
-                    Integer reward = demand.getReward();
-                    Integer score = user.getScore();
-
-                    score += reward;
-                    user.setScore(score);
-                    userService.update(user);
-                    demandService.addOrUpdate(demand);
-
-                    response.put("status", 1);
-                    response.put("message", "The winner has been set.");
-                }
-            }
-            else {
+            if (demand.getWinner() != null) {
                 response.put("status", 0);
-                response.put("message", "No permission to set winner.");
+                response.put("message", "The winner has been already set.");
+            } else if (userId.equals(SecurityUtil.getUserId())) {
+                response.put("status", 0);
+                response.put("message", "The winner can't be yourself.");
+            } else {
+                demand.setWinner(user);
+
+                user.setScore(user.getScore() + demand.getReward());
+
+                userService.update(user);
+                demandService.addOrUpdate(demand);
+
+                response.put("status", 1);
+                response.put("message", "The winner has been set.");
             }
-        }catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             response.put("status", 0);
             response.put("message", "The Id is not exist.");
         }
+
         return response;
+    }
+
+    private boolean judge(Demand demand) {
+        return !demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId());
     }
 }

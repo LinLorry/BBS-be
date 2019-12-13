@@ -20,8 +20,7 @@ public class DemandService  {
      * @param demand addOrUpdate a new demand
      * @return Demand
      */
-
-    public Demand addOrUpdate(Demand demand){
+    Demand addOrUpdate(Demand demand){
         return demandRepository.save(demand);
     }
 
@@ -39,7 +38,7 @@ public class DemandService  {
      * @param topicId demand's topicId
      * @return demand
      */
-    public Demand loadById(Long topicId){
+    Demand loadById(Long topicId){
         return demandRepository.findById(topicId)
                 .orElseThrow(NoSuchElementException::new);
     }
