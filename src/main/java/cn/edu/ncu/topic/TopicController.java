@@ -1,5 +1,6 @@
 package cn.edu.ncu.topic;
 
+import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -119,6 +120,41 @@ public class TopicController {
             response.put("status",0);
             response.put("message","The topic isn't exist");
         }
+        return response;
+    }
+
+    @GetMapping("/{*id}")
+    public JSONObject get(@PathVariable("*id") Long id) {
+        JSONObject response = new JSONObject();
+        try {
+            Topic topic = topicService.loadById(id);
+            Demand demand = topic.getDemand();
+
+            JSONObject data = new JSONObject();
+
+            data.put("id", topic.getId());
+            data.put("title", topic.getTitle());
+            data.put("content", topic.getContent());
+            data.put("createTime", topic.getCreateTime());
+            data.put("boutique", topic.getBoutique());
+
+            if (demand != null) {
+                data.put("demandContent", topic.getDemand().getContent());
+                data.put("demandReward", topic.getDemand().getReward());
+                Optional.ofNullable(
+                        demand.getWinner()
+                ).ifPresent(winner -> data.put("winnerUsername", winner.getUsername()));
+            }
+            data.putAll(topic.getInfo());
+
+            response.put("status", 1);
+            response.put("message", "Get topic success.");
+            response.put("data", data);
+        } catch (NoSuchElementException e) {
+            response.put("status", 0);
+            response.put("message", "This topic isn't exist.");
+        }
+
         return response;
     }
 
