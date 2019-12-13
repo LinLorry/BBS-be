@@ -73,6 +73,39 @@ public class TopicController {
         return  response;
     }
 
+    @PostMapping
+    public JSONObject update(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException {
+        JSONObject response = new JSONObject();
+
+        Topic topic = topicService.loadById(
+                Optional.ofNullable(
+                        request.getLong("id")
+                ).orElseThrow(() -> new MissingServletRequestParameterException(
+                        "id", "Long"
+                ))
+        );
+
+        if (topic.getCreateUser().getId().equals(SecurityUtil.getUserId())) {
+            Optional.ofNullable(
+                    request.getString("title")
+            ).ifPresent(topic::setTitle);
+
+            Optional.ofNullable(
+                    request.getString("content")
+            ).ifPresent(topic::setContent);
+
+            response.put("data", topicService.addOrUpdate(topic));
+            response.put("status", 1);
+            response.put("message", "Update topic success.");
+        } else {
+            response.put("status", 0);
+            response.put("message", "You can't update this topic.");
+        }
+
+        return response;
+    }
+
     @DeleteMapping
     public JSONObject delete(@RequestParam Long id){
         JSONObject response=new JSONObject();
