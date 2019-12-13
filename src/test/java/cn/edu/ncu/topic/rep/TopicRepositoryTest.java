@@ -73,4 +73,15 @@ public class TopicRepositoryTest {
 
         topicPage.getContent().forEach(System.out::println);
     }
+
+    @Test
+    @Transactional
+    public void findAllByDemandExists() {
+        Page<Topic> topicPage = topicRepository.findAllByDemandExists(PageRequest.of(0, 5));
+
+        assertNotNull(topicPage);
+        System.out.println(topicPage.getContent().size());
+
+        topicPage.getContent().forEach(System.out::println);
+    }
 }
