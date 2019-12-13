@@ -1,19 +1,14 @@
 package cn.edu.ncu.topic;
 
 import cn.edu.ncu.topic.model.Topic;
-import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -24,7 +19,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/topic")
 public class TopicController {
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     private final TopicService topicService;
 
@@ -32,16 +26,11 @@ public class TopicController {
         this.topicService = topicService;
     }
 
-
     /**
      * Create Topic Api
      * @param request {
      *      "title": String, not null
      *      "content": String, not null
-     *      "time": Timestamp, not null
-     *      "comment": String
-     *      "demand": Demand
-     *      "user": User
      * }
      * @return if create topic success return {
      *     "status": 1,
@@ -54,45 +43,15 @@ public class TopicController {
      *     "message": "message"
      * }
      */
-    /*
-    @ResponseBody
-    @PostMapping("/create")
-    public JSONObject create(@RequestBody JSONObject request) {
+    @PutMapping
+    public JSONObject create(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
-        User user = SecurityUtil.getUser();
-        Demand demand = new Demand();
 
-        try {
-            response.put("data", topicService.addTopic(request, user, demand));
-            response.put("status", 1);
-            response.put("message", "Create Topic Success.");
-        } catch (Exception e) {
-            response.put("status", 0);
-            if (request.getString("title") == null) {
-                response.put("message", "title can't be null.");
-            } else if (request.getString("content") == null) {
-                response.put("message", "content can't be null.");
-            } else {
-                logger.error(e);
-                response.put("message", "Create Topic Failed.");
-            }
-        }
-
-        return response;
-    }
-*/
-
-    @ResponseBody
-    @PostMapping("/create")
-    public JSONObject create(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
-        JSONObject response = new JSONObject();
-        User user = SecurityUtil.getUser();
-        //Demand demand = new Demand();
-        Topic topic=new Topic();
-        String title= Optional.ofNullable(
+        String title = Optional.ofNullable(
                 request.getString("title")
-        ).orElseThrow(()->new MissingServletRequestParameterException(
-                "title","String"
+        ).orElseThrow(() -> new MissingServletRequestParameterException(
+                "title", "String"
         ));
         String content = Optional.ofNullable(
                 request.getString("content")
@@ -100,42 +59,55 @@ public class TopicController {
                 "content", "String"
         ));
 
-        /*
-        Long id=request.getLong("id");
-        String title=request.getString("title");
-        String content=request.getString("content");*/
-        LocalDate today = LocalDate.now();
-        topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
-        topic.setCreateUser(user);
-        topic.setContent(content);
+        Topic topic = new Topic();
+
         topic.setTitle(title);
-        //topic.setId(id);
-        //topic.setDemand(demand);
-        try{
-            response.put("data", topicService.addOrUpdate(topic));
-            response.put("status", 1);
-            response.put("message", "Create Topic Success.");
-        }catch (DataIntegrityViolationException e){
-            response.put("status",0);
-            response.put("message","The topic already exists");
-        }
-        /*catch (Exception e) {
-            response.put("status", 0);
-            if (title == null) {
-                response.put("message", "title can't be null.");
-            } else if (content == null) {
-                response.put("message", "content can't be null.");
-            } else {
-                logger.error(e);
-                response.put("message", "Create Topic Failed.");
-            }
-        }*/
+        topic.setContent(content);
+        topic.setCreateUser(SecurityUtil.getUser());
+        topic.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
+        response.put("data", topicService.addOrUpdate(topic));
+        response.put("status", 1);
+        response.put("message", "Create Topic Success.");
+
         return  response;
     }
 
-    @ResponseBody
-    @GetMapping("/delete")
-    public JSONObject delete(@RequestParam(required = true)Long id){
+    @PostMapping
+    public JSONObject update(@RequestBody JSONObject request)
+            throws MissingServletRequestParameterException {
+        JSONObject response = new JSONObject();
+
+        Topic topic = topicService.loadById(
+                Optional.ofNullable(
+                        request.getLong("id")
+                ).orElseThrow(() -> new MissingServletRequestParameterException(
+                        "id", "Long"
+                ))
+        );
+
+        if (topic.getCreateUser().getId().equals(SecurityUtil.getUserId())) {
+            Optional.ofNullable(
+                    request.getString("title")
+            ).ifPresent(topic::setTitle);
+
+            Optional.ofNullable(
+                    request.getString("content")
+            ).ifPresent(topic::setContent);
+
+            response.put("data", topicService.addOrUpdate(topic));
+            response.put("status", 1);
+            response.put("message", "Update topic success.");
+        } else {
+            response.put("status", 0);
+            response.put("message", "You can't update this topic.");
+        }
+
+        return response;
+    }
+
+    @DeleteMapping
+    public JSONObject delete(@RequestParam Long id){
         JSONObject response=new JSONObject();
         try{
             topicService.deleteById(id);
@@ -148,7 +120,6 @@ public class TopicController {
         return response;
     }
 
-    @ResponseBody
     @GetMapping("/find")
     public JSONObject find(
             @RequestParam(required = false) Integer id,
@@ -175,8 +146,58 @@ public class TopicController {
         response.put("data", data);
         response.put("status",1);
         response.put("message","Get Topic success");
-        return response;
 
+        return response;
     }
 
+    @GetMapping("/getBoutique")
+    public JSONObject getBoutique(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllBoutique(pageNumber);
+
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get all boutique topics success.");
+        response.put("data", data);
+
+        return response;
+    }
+
+    @GetMapping("/hot")
+    public JSONObject getHot(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllOrderByCountComment(pageNumber);
+
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get all hot topics success.");
+        response.put("data", data);
+
+        return response;
+    }
+
+    @GetMapping("/demand")
+    public JSONObject getHaveDemand(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllByDemandExists(pageNumber);
+
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get all have demand topics success.");
+        response.put("data", data);
+
+        return response;
+    }
 }

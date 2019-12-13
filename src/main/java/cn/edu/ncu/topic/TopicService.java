@@ -34,6 +34,10 @@ public class TopicService {
         topicRepository.deleteById(id);
     }
 
+    public boolean checkById(Long id) {
+        return topicRepository.existsById(id);
+    }
+
     /**
      * Load All Topic
      * @param pageNumber the page number.
@@ -42,8 +46,6 @@ public class TopicService {
     Page<Topic> loadAll(Integer pageNumber) {
         return topicRepository.findAll(PageRequest.of(pageNumber,20));
     }
-
-
 
     /**
      * get the Topic by id
@@ -54,7 +56,6 @@ public class TopicService {
     public Topic loadById(long id) throws NoSuchElementException {
         return topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
-
 
     /**
      * 模糊查询分页查询?
@@ -69,5 +70,17 @@ public class TopicService {
         specificationUtil.addLikeMap(likeMap);
         Specification<Topic> specification = specificationUtil.getSpecification();
         return topicRepository.findAll(specification, PageRequest.of(pageNumber, 20));
+    }
+
+    Page<Topic> loadAllBoutique(Integer pageNumber) {
+        return topicRepository.findAllByBoutiqueIsTrue(PageRequest.of(pageNumber, 20));
+    }
+
+    Page<Topic> loadAllOrderByCountComment(Integer pageNumber) {
+        return topicRepository.findAllOrderByCountComment(PageRequest.of(pageNumber, 20));
+    }
+
+    Page<Topic> loadAllByDemandExists(Integer pageNumber) {
+        return topicRepository.findAllByDemandExists(PageRequest.of(pageNumber, 20));
     }
 }
