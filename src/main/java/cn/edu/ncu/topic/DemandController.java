@@ -231,7 +231,11 @@ public class DemandController {
             User user = userService.loadById(userId);
 
             if(demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId())){
-                if(userId.equals(SecurityUtil.getUserId())){
+                if (demand.getWinner() != null){
+                    response.put("status", 0);
+                    response.put("message", "The winner has been already set.");
+                }
+                else if(userId.equals(SecurityUtil.getUserId())){
                     response.put("status", 0);
                     response.put("message", "The winner can't be yourself.");
                 }
@@ -243,9 +247,10 @@ public class DemandController {
                     score += reward;
                     user.setScore(score);
                     userService.update(user);
+                    demandService.addOrUpdate(demand);
 
                     response.put("status", 1);
-                    response.put("message", "The winner has been set");
+                    response.put("message", "The winner has been set.");
                 }
             }
             else {
