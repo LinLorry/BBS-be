@@ -65,7 +65,7 @@ public class DemandController {
         Integer reward = request.getInteger("reward");
 
         try {
-            Topic topic = topicService.loadTopicById(topicId);
+            Topic topic = topicService.loadById(topicId);
             User user = SecurityUtil.getUser();
 
             if (!topic.getCreateUser().getId().equals(user.getId())) {
