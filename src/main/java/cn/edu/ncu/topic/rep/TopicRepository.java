@@ -20,9 +20,14 @@ import java.util.Optional;
  */
 @Repository
 public interface TopicRepository extends CrudRepository<Topic, Long>, JpaSpecificationExecutor<Topic> {
+
     Optional<Topic> findById(long id);
+
     Page<Topic>findAll(Pageable pageable);
+
     boolean existsById(long id);
+
     Topic save(Topic topic);
 
+    Page<Topic> findAllByBoutiqueIsTrue(Pageable pageable);
 }
