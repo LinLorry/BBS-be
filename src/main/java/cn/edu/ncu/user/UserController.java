@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 /**
@@ -182,10 +183,11 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/profile")
+    @Transactional
     public JSONObject editProfile(@RequestBody JSONObject request) {
         JSONObject response = new JSONObject();
 
-        User user = userService.loadById(SecurityUtil.getUserId());
+        User user = userService.loadByIdNoCache(SecurityUtil.getUserId());
 
         Optional<String> name = Optional.of(request.getString("name"));
         Optional<String> contact = Optional.of(request.getString("contact"));
@@ -226,6 +228,7 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/password")
+    @Transactional
     public JSONObject editPassword(@RequestBody JSONObject request) throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
 
@@ -234,7 +237,7 @@ public class UserController {
         String newPassword = Optional.of(request.getString("newPassword"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("newPassword", "String"));
 
-        User user = userService.loadById(SecurityUtil.getUserId());
+        User user = userService.loadByIdNoCache(SecurityUtil.getUserId());
 
         if (userService.checkPassword(user, oldPassword)) {
             user.setPassword(newPassword);
