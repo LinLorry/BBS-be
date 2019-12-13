@@ -44,6 +44,11 @@ public class DemandService  {
      */
     @Cacheable(value = "demandCache", key = "#topicId")
     public Demand loadById(Long topicId) {
+        return loadByIdNoCache(topicId);
+    }
+
+    @CachePut(value = "demandCache", key = "#topicId")
+    public Demand loadByIdNoCache(Long topicId) {
         return demandRepository.findById(topicId)
                 .orElseThrow(NoSuchElementException::new);
     }
