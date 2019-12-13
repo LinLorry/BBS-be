@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -74,6 +75,7 @@ public class TopicController {
     }
 
     @PostMapping
+    @Transactional
     public JSONObject update(@RequestBody JSONObject request)
             throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
@@ -141,7 +143,7 @@ public class TopicController {
         Page<Topic> topics=topicService.load(equalMap,likeMap,pageNumber);
         JSONObject data = new JSONObject();
         data.put("total", topics.getTotalPages());
-        data.put("works", topics.getContent());
+        data.put("topics", topics.getContent());
 
         response.put("data", data);
         response.put("status",1);
