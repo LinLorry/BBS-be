@@ -40,4 +40,12 @@ public class DemandServiceTest {
     public void deleteByTopicId() {
         demandService.deleteByTopicId(1L);
     }
+
+    @Test
+    public void loadByTopicId(){
+        Demand demand = demandService.loadByTopicId(1L);
+
+        demandService.loadByTopicId(1L);
+        System.out.println(demand);
+    }
 }
