@@ -154,19 +154,16 @@ public class DemandController {
 
     /**
      *
-     * @param request "topicId": topicId: Long[must],
+     * @param topicId: topicId: Long[must],
      * @return {
      *      "status", 1，
      *      "message", "The demand has been delete"
      * }
      */
     @ResponseBody
-    @PostMapping("/delete")
-    public JSONObject delete(@RequestBody JSONObject request) throws MissingServletRequestParameterException{
+    @GetMapping("/delete")
+    public JSONObject delete(@RequestParam(required = true)Long topicId){
         JSONObject response = new JSONObject();
-
-        Long topicId = Optional.of(request.getLong("topicId"))
-                .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
 
         try {
             Demand demand = demandService.loadByTopicId(topicId);
