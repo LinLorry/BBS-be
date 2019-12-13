@@ -1,8 +1,5 @@
 package cn.edu.ncu.topic;
 
-
-import cn.edu.ncu.topic.rep.TopicRepository;
-import cn.edu.ncu.user.rep.UserRepository;
 import cn.edu.ncu.util.TestUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.junit.Assert;
@@ -24,12 +21,6 @@ import java.net.URISyntaxException;
 public class DemandControllerTest {
 
     private static final String baseUrl = "/api/demand";
-    @Autowired
-    private DemandController demandController;
-    @Autowired
-    private TopicRepository topicRepository;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -91,6 +82,21 @@ public class DemandControllerTest {
                 .exchange(uri, HttpMethod.GET, request, JSONObject.class);
 
         System.out.println(response.getBody());
+        Assert.assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void setWinner() throws URISyntaxException {
+        final String url = baseUrl + "/setWinner";
+        URI uri=new URI(url);
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("topicId", 4L);
+        requestBody.put("userId", 2L);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
+        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
+        System.out.println(response);
         Assert.assertEquals(200, response.getStatusCodeValue());
     }
 }
