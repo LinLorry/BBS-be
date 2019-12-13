@@ -47,8 +47,6 @@ public class TopicService {
         return topicRepository.findAll(PageRequest.of(pageNumber,20));
     }
 
-
-
     /**
      * get the Topic by id
      * @param id the topic id.
@@ -58,7 +56,6 @@ public class TopicService {
     public Topic loadById(long id) throws NoSuchElementException {
         return topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
-
 
     /**
      * 模糊查询分页查询?
@@ -75,11 +72,15 @@ public class TopicService {
         return topicRepository.findAll(specification, PageRequest.of(pageNumber, 20));
     }
 
-    public Page<Topic> loadAllBoutique(Integer pageNumber) {
+    Page<Topic> loadAllBoutique(Integer pageNumber) {
         return topicRepository.findAllByBoutiqueIsTrue(PageRequest.of(pageNumber, 20));
     }
 
-    public Page<Topic> loadAllOrderByCountComment(Integer pageNumber) {
+    Page<Topic> loadAllOrderByCountComment(Integer pageNumber) {
         return topicRepository.findAllOrderByCountComment(PageRequest.of(pageNumber, 20));
+    }
+
+    Page<Topic> loadAllByDemandExists(Integer pageNumber) {
+        return topicRepository.findAllByDemandExists(PageRequest.of(pageNumber, 20));
     }
 }
