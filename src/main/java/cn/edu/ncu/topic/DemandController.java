@@ -1,5 +1,7 @@
 package cn.edu.ncu.topic;
 
+import cn.edu.ncu.exception.NoEnoughScoreException;
+import cn.edu.ncu.exception.RewardInvalidException;
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.UserService;
@@ -58,6 +60,8 @@ public class DemandController {
             throws MissingServletRequestParameterException{
         JSONObject response = new JSONObject();
 
+        Demand demand = new Demand();
+
         Long topicId = Optional.of(request.getLong("topicId"))
                 .orElseThrow(() -> new MissingServletRequestParameterException("topicId", "Long"));
         String content =Optional.of(request.getString("content"))
@@ -66,24 +70,12 @@ public class DemandController {
 
         try {
             Topic topic = topicService.loadById(topicId);
-            User user = SecurityUtil.getUser();
 
-            if (!topic.getCreateUser().getId().equals(user.getId())) {
-                response.put("status", 0);
-                response.put("message", "No permission to update.");
-                return response;
-            }
+            if (judge(topic)) return permission;
 
-            Integer score = user.getScore();
-
-            if (score >= reward) {
-                score -= reward;
-                user.setScore(score);
-
-                userService.update(user);
-
-                Demand demand = new Demand();
+            if (topic.getDemand() == null) {
                 demand.setTopicId(topicId);
+                demand.setTopic(topic);
                 demand.setContent(content);
                 demand.setReward(reward);
 
@@ -92,7 +84,7 @@ public class DemandController {
                 response.put("message", "Add Success");
             } else {
                 response.put("status", 0);
-                response.put("message", "Lack of score");
+                response.put("message", "This topic have demand, can't add demand.");
             }
         } catch (NoSuchElementException e) {
             response.put("status", 0);
@@ -119,41 +111,41 @@ public class DemandController {
     public JSONObject update(@RequestBody JSONObject request)
             throws MissingServletRequestParameterException{
         JSONObject response = new JSONObject();
-        User user = SecurityUtil.getUser();
+
+        Long id = Optional.ofNullable(
+                request.getLong("topicId")
+        ).orElseThrow(() -> new MissingServletRequestParameterException(
+                "topicId", "Long"
+        ));
 
         try {
-            Demand demand = demandService.loadById(Optional.ofNullable(
-                    request.getLong("topicId")
-            ).orElseThrow(() -> new MissingServletRequestParameterException
-                    ("topicId", "Long")
-            ));
-            if (judge(demand)) return permission;
+            Demand demand = demandService.loadByIdNoCache(id);
+
+            if (judge(demand.getTopic())) return permission;
 
             Optional.ofNullable(
                     request.getString("content")
             ).ifPresent(demand::setContent);
 
-            Integer reward = request.getInteger("reward");
+            Optional.ofNullable(
+                    request.getInteger("reward")
+            ).ifPresent(demand::setReward);
 
-            if (reward != null) {
-                Integer score = user.getScore();
-                Integer lastReward = demand.getReward();
+            Optional.ofNullable(
+                    request.getLong("winnerId")
+            ).ifPresent(winnerId -> demand.setWinner(userService.loadById(winnerId)));
 
-                score = score - reward + lastReward;
-                user.setScore(score);
+            demandService.addOrUpdate(demand);
 
-                if (score >= 0) {
-                    userService.update(user);
-                    demand.setReward(reward);
+            response.put("status", 1);
+            response.put("message", "Update demand success.");
 
-                    response.put("data", demandService.addOrUpdate(demand));
-                    response.put("status", 1);
-                    response.put("message", "Update Success");
-                } else {
-                    response.put("status", 0);
-                    response.put("message", "Lack of score");
-                }
-            }
+        } catch (NoEnoughScoreException e) {
+            response.put("status", 0);
+            response.put("message", "Lack of score");
+        } catch (RewardInvalidException e) {
+            response.put("status", 0);
+            response.put("message", "Reward invalid.");
         } catch (NoSuchElementException e) {
             response.put("status", 0);
             response.put("message", "The Id is not exist.");
@@ -174,22 +166,19 @@ public class DemandController {
     @Transactional
     public JSONObject delete(@RequestParam Long topicId){
         JSONObject response = new JSONObject();
-        User user = SecurityUtil.getUser();
 
         try {
-            Demand demand = demandService.loadById(topicId);
-            if (judge(demand)) return permission;
+            Demand demand = demandService.loadByIdNoCache(topicId);
+
+            if (judge(demand.getTopic())) return permission;
 
             if (demand.getWinner() == null) {
-                Integer reward = demand.getReward();
-                Integer score = user.getScore();
+                User user = demand.getTopic().getCreateUser();
 
-                score += reward;
-                user.setScore(score);
+                user.setScore(user.getScore() + demand.getReward());
 
                 userService.update(user);
             }
-
             demandService.deleteById(topicId);
 
             response.put("status", 1);
@@ -203,51 +192,7 @@ public class DemandController {
         return response;
     }
 
-    @PostMapping("/winner")
-    @Transactional
-    public JSONObject setWinner(@RequestBody JSONObject request)
-            throws Exception {
-        JSONObject response = new JSONObject();
-
-        Long userId = Optional.of(request.getLong("userId"))
-                .orElseThrow(() -> new MissingServletRequestParameterException("userId", "Long"));
-
-        try {
-            Demand demand = demandService.loadById(Optional.ofNullable(
-                    request.getLong("topicId")
-            ).orElseThrow(() -> new MissingServletRequestParameterException
-                    ("topicId", "Long")
-            ));
-            if (judge(demand)) return permission;
-
-            User user = userService.loadById(userId);
-
-            if (demand.getWinner() != null) {
-                response.put("status", 0);
-                response.put("message", "The winner has been already set.");
-            } else if (userId.equals(SecurityUtil.getUserId())) {
-                response.put("status", 0);
-                response.put("message", "The winner can't be yourself.");
-            } else {
-                demand.setWinner(user);
-
-                user.setScore(user.getScore() + demand.getReward());
-
-                userService.update(user);
-                demandService.addOrUpdate(demand);
-
-                response.put("status", 1);
-                response.put("message", "The winner has been set.");
-            }
-        } catch (NoSuchElementException e) {
-            response.put("status", 0);
-            response.put("message", "The Id is not exist.");
-        }
-
-        return response;
-    }
-
-    private boolean judge(Demand demand) {
-        return !demand.getTopic().getCreateUser().getId().equals(SecurityUtil.getUserId());
+    private boolean judge(Topic topic) {
+        return !topic.getCreateUser().getId().equals(SecurityUtil.getUserId());
     }
 }

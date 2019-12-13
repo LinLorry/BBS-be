@@ -34,9 +34,9 @@ public class DemandControllerTest {
         URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 2L);
+        requestBody.put("topicId", 1L);
         requestBody.put("content", RandomString.make());
-        requestBody.put("reward", 5);
+        requestBody.put("reward", 10);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.exchange(
@@ -50,9 +50,10 @@ public class DemandControllerTest {
         URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 4L);
-        requestBody.put("content","测试的demand3");
-        requestBody.put("reward", 0);
+        requestBody.put("topicId", 1L);
+        requestBody.put("winnerId", 1L);
+        requestBody.put("content", RandomString.make());
+        requestBody.put("reward", 5);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
@@ -63,7 +64,7 @@ public class DemandControllerTest {
 
     @Test
     public void delete() throws URISyntaxException{
-        final String url = baseUrl + "?topicId=2";
+        final String url = baseUrl + "?topicId=1";
         URI uri=new URI(url);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
@@ -71,21 +72,6 @@ public class DemandControllerTest {
         ResponseEntity<JSONObject> response = restTemplate
                 .exchange(uri, HttpMethod.DELETE, request, JSONObject.class);
 
-        System.out.println(response.getBody());
-        Assert.assertEquals(200, response.getStatusCodeValue());
-    }
-
-    @Test
-    public void setWinner() throws URISyntaxException {
-        final String url = baseUrl + "/winner";
-        URI uri=new URI(url);
-
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 2L);
-        requestBody.put("userId", 2L);
-
-        HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
-        ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
         System.out.println(response.getBody());
         Assert.assertEquals(200, response.getStatusCodeValue());
     }

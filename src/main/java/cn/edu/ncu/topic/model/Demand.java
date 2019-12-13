@@ -1,5 +1,7 @@
 package cn.edu.ncu.topic.model;
 
+import cn.edu.ncu.exception.NoEnoughScoreException;
+import cn.edu.ncu.exception.RewardInvalidException;
 import cn.edu.ncu.user.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
@@ -22,19 +24,23 @@ public class Demand implements Serializable {
     @Column(updatable = false)
     private Long topicId;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "topic")
+    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH, CascadeType.MERGE })
+    @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
 
     @Column(nullable = false)
     @Type(type = "text")
     private String content;
 
-    private Integer reward;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer reward = 0;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @JsonIgnore
     private User winner;
+
+    public Demand() {
+    }
 
     public Long getTopicId() {
         return topicId;
@@ -64,8 +70,20 @@ public class Demand implements Serializable {
         return reward;
     }
 
-    public void setReward(Integer reward) {
-        this.reward = reward;
+    public void setReward(Integer reward) throws NoEnoughScoreException {
+        if (reward == null || reward < 0 || winner != null) {
+            throw new RewardInvalidException();
+        }
+
+        User createUser = topic.getCreateUser();
+        Integer diff = reward - this.reward;
+
+        if (createUser.getScore() < diff) {
+            throw new NoEnoughScoreException();
+        }
+
+        createUser.setScore(createUser.getScore() - diff);
+        this.reward += diff;
     }
 
     public User getWinner() {
@@ -73,7 +91,10 @@ public class Demand implements Serializable {
     }
 
     public void setWinner(User winner) {
-        this.winner = winner;
+        if (this.winner == null && !topic.getCreateUser().equals(winner)) {
+            winner.setScore(winner.getScore() + reward);
+            this.winner = winner;
+        }
     }
 
     @Override
