@@ -74,7 +74,7 @@ public class CommentController {
         comment.setLocation(location);
 
         try {
-            Topic topic = topicService.loadTopicById(topicId);
+            Topic topic = topicService.loadById(topicId);
             comment.setTopic(topic);
 
             commentService.add(comment);
@@ -121,7 +121,7 @@ public class CommentController {
         JSONObject response = new JSONObject();
 
         try {
-            Topic topic = topicService.loadTopicById(topicId);
+            Topic topic = topicService.loadById(topicId);
             Page<Comment> comments = commentService.loadAllByTopic(
                     topic, Optional.ofNullable(pageNumber).orElse(0));
 
