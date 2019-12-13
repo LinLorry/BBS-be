@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
@@ -22,7 +24,9 @@ public class UserServiceTest {
         User user = new User();
         user.setUsername(RandomString.make());
         user.setPassword("test");
+
         userService.add(user);
+        System.out.println(user);
     }
 
     @Test
@@ -33,14 +37,17 @@ public class UserServiceTest {
     }
 
     @Test
+    @Transactional
     public void update() {
-        User user = userService.loadById(1L);
+        User user = userService.loadByIdNoCache(1L);
+
         String randomString = RandomString.make();
         user.setName(randomString);
 
         userService.update(user);
 
         assertEquals(userService.loadById(1L).getName(), randomString);
+        System.out.println(user);
     }
 
     @Test
@@ -50,8 +57,9 @@ public class UserServiceTest {
     }
 
     @Test
+    @Transactional
     public void updatePassword() {
-        User user = userService.loadById(1L);
+        User user = userService.loadByIdNoCache(1L);
         user.setPassword("test");
 
         userService.updatePassword(user);
@@ -59,6 +67,7 @@ public class UserServiceTest {
         assertTrue(userService.checkPassword(
                 userService.loadById(1L), "test")
         );
+        System.out.println(user);
     }
 
     @Test
@@ -66,6 +75,7 @@ public class UserServiceTest {
         User user = userService.loadById(1L);
 
         assertEquals(user.getId(), new Long(1));
+        System.out.println(user);
     }
 
     @Test
@@ -74,5 +84,6 @@ public class UserServiceTest {
         User tmp = userService.loadUserByUsername(user.getUsername());
 
         assertEquals(user.getId(), tmp.getId());
+        System.out.println(user);
     }
 }

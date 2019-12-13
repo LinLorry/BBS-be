@@ -102,7 +102,6 @@ public class UserControllerTest {
 
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
-
     }
 
     @Test
