@@ -162,7 +162,7 @@ public class DemandController {
      */
     @ResponseBody
     @GetMapping("/delete")
-    public JSONObject delete(@RequestParam(required = true)Long topicId){
+    public JSONObject delete(@RequestParam Long topicId){
         JSONObject response = new JSONObject();
 
         try {
@@ -202,7 +202,7 @@ public class DemandController {
      */
     @ResponseBody
     @GetMapping("/loadById")
-    public JSONObject loadById(@RequestParam(required = true)Long topicId){
+    public JSONObject loadById(@RequestParam Long topicId){
         JSONObject response = new JSONObject();
 
         try{
