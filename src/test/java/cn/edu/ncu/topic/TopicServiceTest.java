@@ -25,20 +25,6 @@ public class TopicServiceTest {
 
     @Autowired
     private UserRepository userRepository;
-/*
-    @Test
-    public void addTopic() {
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("title","测试1的title");
-        jsonObject.put("content","测试1的context");
-        jsonObject.put("time","2019-12-12 12:12:00");
-        jsonObject.put("boutique",false);
-        System.out.println(jsonObject);
-
-        topicService.addTopic(jsonObject,user,null);
-    }
-*/
 
     @Test
     public  void add(){
@@ -69,7 +55,6 @@ public class TopicServiceTest {
         for (Topic topic:topics) {
             System.out.println(topic);
         }
-
     }
 
     @Test

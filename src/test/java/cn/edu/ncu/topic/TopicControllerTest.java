@@ -116,4 +116,18 @@ public class TopicControllerTest {
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
+
+    @Test
+    public void getHaveDemand() throws URISyntaxException {
+        final String url = baseUrl + "/demand";
+        URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
 }
