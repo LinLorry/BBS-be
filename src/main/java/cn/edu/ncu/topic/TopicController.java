@@ -161,7 +161,7 @@ public class TopicController {
         data.put("topics", topics.getContent());
 
         response.put("status", 1);
-        response.put("message", "Get all boutique topic success.");
+        response.put("message", "Get all boutique topics success.");
         response.put("data", data);
 
         return response;
@@ -178,7 +178,24 @@ public class TopicController {
         data.put("topics", topics.getContent());
 
         response.put("status", 1);
-        response.put("message", "Get all boutique topic success.");
+        response.put("message", "Get all hot topics success.");
+        response.put("data", data);
+
+        return response;
+    }
+
+    @GetMapping("/demand")
+    public JSONObject getHaveDemand(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllByDemandExists(pageNumber);
+
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get all have demand topics success.");
         response.put("data", data);
 
         return response;
