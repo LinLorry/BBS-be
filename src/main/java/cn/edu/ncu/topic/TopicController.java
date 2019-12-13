@@ -188,6 +188,22 @@ public class TopicController {
         return response;
     }
 
+    @GetMapping
+    public JSONObject getAll(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAll(pageNumber);
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get topics success");
+        response.put("data", data);
+
+        return response;
+    }
+
     @GetMapping("/getBoutique")
     public JSONObject getBoutique(@RequestParam(defaultValue = "0") Integer pageNumber) {
         JSONObject response = new JSONObject();
