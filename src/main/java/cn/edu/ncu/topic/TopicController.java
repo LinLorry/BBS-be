@@ -26,7 +26,6 @@ public class TopicController {
         this.topicService = topicService;
     }
 
-
     /**
      * Create Topic Api
      * @param request {
@@ -44,8 +43,7 @@ public class TopicController {
      *     "message": "message"
      * }
      */
-    @ResponseBody
-    @PostMapping("/create")
+    @PutMapping
     public JSONObject create(@RequestBody JSONObject request)
             throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
@@ -75,9 +73,8 @@ public class TopicController {
         return  response;
     }
 
-    @ResponseBody
-    @GetMapping("/delete")
-    public JSONObject delete(@RequestParam(required = true)Long id){
+    @DeleteMapping
+    public JSONObject delete(@RequestParam Long id){
         JSONObject response=new JSONObject();
         try{
             topicService.deleteById(id);
@@ -90,7 +87,6 @@ public class TopicController {
         return response;
     }
 
-    @ResponseBody
     @GetMapping("/find")
     public JSONObject find(
             @RequestParam(required = false) Integer id,
@@ -117,8 +113,7 @@ public class TopicController {
         response.put("data", data);
         response.put("status",1);
         response.put("message","Get Topic success");
+
         return response;
-
     }
-
 }
