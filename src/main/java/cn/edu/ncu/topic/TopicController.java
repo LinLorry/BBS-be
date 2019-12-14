@@ -4,7 +4,6 @@ import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
@@ -112,13 +111,21 @@ public class TopicController {
     @DeleteMapping
     public JSONObject delete(@RequestParam Long id){
         JSONObject response=new JSONObject();
-        try{
-            topicService.deleteById(id);
-            response.put("status",1);
-            response.put("message","Delete topic success");
-        }catch (EmptyResultDataAccessException e){
-            response.put("status",0);
-            response.put("message","The topic isn't exist");
+        try {
+            Topic topic = topicService.loadById(id);
+
+            if (topic.getCreateUser().getId().equals(SecurityUtil.getUserId())) {
+                topicService.deleteById(id);
+                response.put("status", 1);
+                response.put("message", "Delete topic success");
+            } else {
+                response.put("status", 0);
+                response.put("message", "You can't delete this topic.");
+            }
+        } catch (NoSuchElementException e) {
+
+            response.put("status", 0);
+            response.put("message", "The topic isn't exist");
         }
         return response;
     }
