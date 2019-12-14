@@ -45,10 +45,15 @@ public class Topic implements Serializable {
     @Column(nullable = false, columnDefinition = "Boolean default false")
     private Boolean boutique = false;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id", referencedColumnName = "topic_id")
     @JsonIgnore
     private Demand demand;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "id", referencedColumnName = "topic_id")
+    @JsonIgnore
+    private TopTopic topTopic;
 
     public Long getId() {
         return id;
