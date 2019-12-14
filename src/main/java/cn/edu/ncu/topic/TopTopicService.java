@@ -5,6 +5,7 @@ import cn.edu.ncu.topic.rep.TopTopicRepository;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +28,10 @@ public class TopTopicService {
      * @param topTopic
      * @return 返回加精帖子本身
      */
-    @CacheEvict(value = "topTopicArrayCache", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "topTopicArrayCache", allEntries = true),
+            @CacheEvict(value = "topTopicExistCache", key = "#result.topicId")
+    })
     public TopTopic add(TopTopic topTopic){
         topicRepository.findById(topTopic.getTopicId())
                 .orElseThrow(NoSuchElementException::new);
@@ -38,9 +42,17 @@ public class TopTopicService {
      *删除帖子
      * @param topicId
      */
-    @CacheEvict(value = "topTopicArrayCache", allEntries = true)
-    public void deleteByTopicId(Long topicId){
+    @Caching(evict = {
+            @CacheEvict(value = "topTopicArrayCache", allEntries = true),
+            @CacheEvict(value = "topTopicExistCache", key = "#topicId")
+    })
+    public void deleteById(Long topicId){
         topTopicRepository.deleteTopTopicByTopicId(topicId);
+    }
+
+    @Cacheable(value = "topTopicExistCache", key = "#topicId")
+    public boolean checkById(Long topicId) {
+        return topTopicRepository.existsById(topicId);
     }
 
     /**

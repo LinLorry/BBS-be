@@ -40,16 +40,21 @@ public class TopTopicController {
                 "id", "Long"
         ));
 
-        TopTopic topTopic = new TopTopic();
-        topTopic.setTopicId(topicId);
-
-        try {
-            response.put("data", topTopicService.add(topTopic));
-            response.put("status", 1);
-            response.put("message", "Add Success.");
-        } catch (NoSuchElementException e) {
+        if (topTopicService.checkById(topicId)) {
             response.put("status", 0);
-            response.put("message", "The topic isn't exist");
+            response.put("message", "This top topic exist.");
+        } else {
+            TopTopic topTopic = new TopTopic();
+            topTopic.setTopicId(topicId);
+
+            try {
+                response.put("data", topTopicService.add(topTopic));
+                response.put("status", 1);
+                response.put("message", "Add Success.");
+            } catch (NoSuchElementException e) {
+                response.put("status", 0);
+                response.put("message", "The topic isn't exist");
+            }
         }
 
         return response;
@@ -65,7 +70,7 @@ public class TopTopicController {
     public JSONObject delete(@RequestParam Long id) {
         JSONObject response = new JSONObject();
 
-        topTopicService.deleteByTopicId(id);
+        topTopicService.deleteById(id);
         response.put("status", 1);
         response.put("message", "Delete top topic success.");
 
