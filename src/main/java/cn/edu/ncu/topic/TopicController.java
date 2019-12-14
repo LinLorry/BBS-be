@@ -80,7 +80,7 @@ public class TopicController {
             throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
 
-        Topic topic = topicService.loadById(
+        Topic topic = topicService.loadByIdNoCache(
                 Optional.ofNullable(
                         request.getLong("id")
                 ).orElseThrow(() -> new MissingServletRequestParameterException(
@@ -211,13 +211,12 @@ public class TopicController {
         return response;
     }
 
-    @GetMapping("/getBoutique")
+    @GetMapping("/boutique")
     public JSONObject getBoutique(@RequestParam(defaultValue = "0") Integer pageNumber) {
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllBoutique(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 
@@ -234,7 +233,6 @@ public class TopicController {
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllOrderByCountComment(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 
@@ -251,7 +249,6 @@ public class TopicController {
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllByDemandExists(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 
