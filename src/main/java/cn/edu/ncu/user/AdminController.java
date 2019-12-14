@@ -29,7 +29,7 @@ public class AdminController {
         JSONObject response=new JSONObject();
 
         try{
-            Topic topic = topicService.loadById(id);
+            Topic topic = topicService.loadByIdNoCache(id);
 
             topic.setBoutique(true);
             topicService.addOrUpdate(topic);
@@ -49,7 +49,7 @@ public class AdminController {
         JSONObject response=new JSONObject();
 
         try{
-            Topic topic = topicService.loadById(
+            Topic topic = topicService.loadByIdNoCache(
                     Optional.ofNullable(
                             request.getLong("id")
                     ).orElseThrow(() -> new MissingServletRequestParameterException(
