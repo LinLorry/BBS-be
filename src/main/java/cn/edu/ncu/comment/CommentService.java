@@ -38,7 +38,8 @@ public class CommentService {
     @Caching(
             evict = {
                     @CacheEvict(value = "commentArrayCache", allEntries = true),
-                    @CacheEvict(value = "topicMaxLocationCache", key = "#comment.topic.id")
+                    @CacheEvict(value = "topicMaxLocationCache", key = "#comment.topic.id"),
+                    @CacheEvict(value = "commentOrderTopicArrayCache", allEntries = true)
             }
     )
     public void add(Comment comment) {
