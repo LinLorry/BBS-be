@@ -74,7 +74,7 @@ public class CommentController {
         comment.setLocation(location);
 
         try {
-            Topic topic = topicService.loadById(topicId);
+            Topic topic = topicService.loadByIdNoCache(topicId);
             comment.setTopic(topic);
 
             commentService.add(comment);
