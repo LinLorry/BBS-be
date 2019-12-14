@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
 @RunWith(SpringRunner.class)
@@ -27,17 +26,17 @@ public class TopicServiceTest {
     private UserRepository userRepository;
 
     @Test
-    public  void add(){
-        Topic topic=new Topic();
+    @Transactional
+    public void addOrUpdate() {
+        Topic topic = new Topic();
         User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-        topic.setId(10L);
+
         topic.setTitle(RandomString.make());
         topic.setContent(RandomString.make());
         topic.setCreateUser(user);
         topic.setBoutique(false);
-        topic.setDemand(null);
-        LocalDate today = LocalDate.now();
-        topic.setCreateTime(Timestamp.valueOf(today.atStartOfDay()));
+        topic.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
         topicService.addOrUpdate(topic);
         System.out.println(topic);
     }
@@ -48,17 +47,16 @@ public class TopicServiceTest {
     }
 
     @Test
-    @Transactional
     public void findAll() {
         Integer pageNumber=0;
         Page<Topic> topics = topicService.loadAll(pageNumber);
-        for (Topic topic:topics) {
-            System.out.println(topic);
-        }
+
+        topics.getContent().forEach(System.out::println);
     }
 
     @Test
     public void loadTopicById() {
-        Topic topic=topicService.loadById(1L);
+        Topic topic = topicService.loadById(1L);
+        System.out.println(topic);
     }
 }

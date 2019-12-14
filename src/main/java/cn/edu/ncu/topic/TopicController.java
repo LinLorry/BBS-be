@@ -1,13 +1,14 @@
 package cn.edu.ncu.topic;
 
+import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -74,11 +75,12 @@ public class TopicController {
     }
 
     @PostMapping
+    @Transactional
     public JSONObject update(@RequestBody JSONObject request)
             throws MissingServletRequestParameterException {
         JSONObject response = new JSONObject();
 
-        Topic topic = topicService.loadById(
+        Topic topic = topicService.loadByIdNoCache(
                 Optional.ofNullable(
                         request.getLong("id")
                 ).orElseThrow(() -> new MissingServletRequestParameterException(
@@ -109,14 +111,57 @@ public class TopicController {
     @DeleteMapping
     public JSONObject delete(@RequestParam Long id){
         JSONObject response=new JSONObject();
-        try{
-            topicService.deleteById(id);
-            response.put("status",1);
-            response.put("message","Delete topic success");
-        }catch (EmptyResultDataAccessException e){
-            response.put("status",0);
-            response.put("message","The topic isn't exist");
+        try {
+            Topic topic = topicService.loadById(id);
+
+            if (topic.getCreateUser().getId().equals(SecurityUtil.getUserId())) {
+                topicService.deleteById(id);
+                response.put("status", 1);
+                response.put("message", "Delete topic success");
+            } else {
+                response.put("status", 0);
+                response.put("message", "You can't delete this topic.");
+            }
+        } catch (NoSuchElementException e) {
+
+            response.put("status", 0);
+            response.put("message", "The topic isn't exist");
         }
+        return response;
+    }
+
+    @GetMapping("/{*id}")
+    public JSONObject get(@PathVariable("*id") Long id) {
+        JSONObject response = new JSONObject();
+        try {
+            Topic topic = topicService.loadById(id);
+            Demand demand = topic.getDemand();
+
+            JSONObject data = new JSONObject();
+
+            data.put("id", topic.getId());
+            data.put("title", topic.getTitle());
+            data.put("content", topic.getContent());
+            data.put("createTime", topic.getCreateTime());
+            data.put("boutique", topic.getBoutique());
+
+            if (demand != null) {
+                data.put("demandContent", topic.getDemand().getContent());
+                data.put("demandReward", topic.getDemand().getReward());
+                Optional.ofNullable(
+                        demand.getWinner()
+                ).ifPresent(winner -> data.put("winnerUsername", winner.getUsername()));
+            }
+            data.putAll(topic.getInfo());
+
+            response.put("status", 1);
+            response.put("message", "Get topic success.");
+            response.put("data", data);
+        } catch (NoSuchElementException e) {
+            response.put("status", 0);
+            response.put("message", "This topic isn't exist.");
+        }
+
         return response;
     }
 
@@ -141,7 +186,7 @@ public class TopicController {
         Page<Topic> topics=topicService.load(equalMap,likeMap,pageNumber);
         JSONObject data = new JSONObject();
         data.put("total", topics.getTotalPages());
-        data.put("works", topics.getContent());
+        data.put("topics", topics.getContent());
 
         response.put("data", data);
         response.put("status",1);
@@ -150,13 +195,28 @@ public class TopicController {
         return response;
     }
 
-    @GetMapping("/getBoutique")
+    @GetMapping
+    public JSONObject getAll(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAll(pageNumber);
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get topics success");
+        response.put("data", data);
+
+        return response;
+    }
+
+    @GetMapping("/boutique")
     public JSONObject getBoutique(@RequestParam(defaultValue = "0") Integer pageNumber) {
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllBoutique(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 
@@ -173,7 +233,6 @@ public class TopicController {
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllOrderByCountComment(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 
@@ -190,7 +249,6 @@ public class TopicController {
         JSONObject data = new JSONObject();
 
         Page<Topic> topics = topicService.loadAllByDemandExists(pageNumber);
-
         data.put("total", topics.getTotalPages());
         data.put("topics", topics.getContent());
 

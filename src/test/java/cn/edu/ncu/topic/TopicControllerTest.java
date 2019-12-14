@@ -1,5 +1,7 @@
 package cn.edu.ncu.topic;
 
+import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.util.TestUtil;
 import com.alibaba.fastjson.JSONObject;
 import net.bytebuddy.utility.RandomString;
@@ -15,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +33,20 @@ public class TopicControllerTest {
 
     @Autowired
     private TestUtil testUtil;
+
+    @Autowired
+    private TopicRepository topicRepository;
+
+    private static final Random random = new Random();
+
+    private Long randomTopicId() {
+        long i = random.nextLong() % topicRepository.count();
+        Iterator<Topic> t = topicRepository.findAll().iterator();
+        while (i-- > 0) {
+            t.next();
+        }
+        return t.next().getId();
+    }
 
     @Test
     public void create() throws URISyntaxException {
@@ -51,12 +69,13 @@ public class TopicControllerTest {
         URI uri = new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
+        requestBody.put("id", randomTopicId());
         requestBody.put("title", RandomString.make());
         requestBody.put("content", RandomString.make());
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.exchange(
-                uri, HttpMethod.PUT, request, JSONObject.class);
+                uri, HttpMethod.POST, request, JSONObject.class);
 
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
@@ -64,11 +83,26 @@ public class TopicControllerTest {
 
     @Test
     public void delete() throws URISyntaxException {
-        URI uri = new URI(baseUrl + "?id=7");
+        URI uri = new URI(baseUrl + "?id=" + randomTopicId());
+
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate
                 .exchange(uri, HttpMethod.DELETE, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void get() throws URISyntaxException {
+        final String url = baseUrl + "/" + randomTopicId();
+        URI uri = new URI(url);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
 
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
@@ -90,8 +124,21 @@ public class TopicControllerTest {
     }
 
     @Test
+    public void getAll() throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+
+        HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
+
+        ResponseEntity<JSONObject> response = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JSONObject.class);
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
     public void getBoutique() throws URISyntaxException {
-        final String url = baseUrl + "/getBoutique";
+        final String url = baseUrl + "/boutique";
         URI uri = new URI(url);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
