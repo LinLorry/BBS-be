@@ -3,6 +3,7 @@ package cn.edu.ncu.topic;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +26,14 @@ public class TopicServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     @Transactional
     public void addOrUpdate() {
         Topic topic = new Topic();
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
 
         topic.setTitle(RandomString.make());
         topic.setContent(RandomString.make());
@@ -43,20 +47,19 @@ public class TopicServiceTest {
 
     @Test
     public void deleteById() {
-        topicService.deleteById(1L);
+        topicService.deleteById(testUtil.getRandomTopicId());
     }
 
     @Test
     public void findAll() {
-        Integer pageNumber=0;
-        Page<Topic> topics = topicService.loadAll(pageNumber);
+        Page<Topic> topics = topicService.loadAll(0);
 
         topics.getContent().forEach(System.out::println);
     }
 
     @Test
     public void loadTopicById() {
-        Topic topic = topicService.loadById(1L);
+        Topic topic = topicService.loadById(testUtil.getRandomTopicId());
         System.out.println(topic);
     }
 }

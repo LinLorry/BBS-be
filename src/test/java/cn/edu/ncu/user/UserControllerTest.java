@@ -56,7 +56,7 @@ public class UserControllerTest {
     @Test
     public void token() throws URISyntaxException {
         final String url = baseUrl + "/token";
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
         URI uri = new URI(url);
 
         JSONObject requestBody = new JSONObject();

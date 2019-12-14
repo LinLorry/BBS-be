@@ -1,6 +1,7 @@
 package cn.edu.ncu.user;
 
 import cn.edu.ncu.user.model.User;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,9 @@ public class UserServiceTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     public void add() {
         User user = new User();
@@ -32,34 +36,35 @@ public class UserServiceTest {
     @Test
     public void checkByUsername() {
         assertTrue(userService.checkByUsername(
-                userService.loadById(1L).getUsername()
+                userService.loadById(testUtil.getRandomUserId()).getUsername()
         ));
     }
 
     @Test
     @Transactional
     public void update() {
-        User user = userService.loadByIdNoCache(1L);
+        Long id = testUtil.getRandomUserId();
+        User user = userService.loadByIdNoCache(id);
 
         String randomString = RandomString.make();
         user.setName(randomString);
 
         userService.update(user);
 
-        assertEquals(userService.loadById(1L).getName(), randomString);
+        assertEquals(userService.loadById(id).getName(), randomString);
         System.out.println(user);
     }
 
     @Test
     public void checkPassword() {
-        User user = userService.loadById(1L);
+        User user = userService.loadById(testUtil.getRandomUserId());
         assertTrue(userService.checkPassword(user, "test"));
     }
 
     @Test
     @Transactional
     public void updatePassword() {
-        User user = userService.loadByIdNoCache(1L);
+        User user = userService.loadByIdNoCache(testUtil.getRandomUserId());
         user.setPassword("test");
 
         userService.updatePassword(user);
@@ -72,15 +77,16 @@ public class UserServiceTest {
 
     @Test
     public void loadById() {
-        User user = userService.loadById(1L);
+        Long id = testUtil.getRandomUserId();
+        User user = userService.loadById(id);
 
-        assertEquals(user.getId(), new Long(1));
+        assertEquals(user.getId(), id);
         System.out.println(user);
     }
 
     @Test
     public void loadUserByUsername() {
-        User user = userService.loadById(1L);
+        User user = userService.loadById(testUtil.getRandomUserId());
         User tmp = userService.loadUserByUsername(user.getUsername());
 
         assertEquals(user.getId(), tmp.getId());

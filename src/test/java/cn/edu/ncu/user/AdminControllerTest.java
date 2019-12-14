@@ -32,7 +32,7 @@ public class AdminControllerTest {
 
     @Test
     public void addBoutique() throws URISyntaxException {
-        URI uri = new URI(baseUrl + "/boutique?id=1");
+        URI uri = new URI(baseUrl + "/boutique?id=" + testUtil.getRandomTopicId());
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate.exchange(
@@ -47,7 +47,7 @@ public class AdminControllerTest {
         URI uri=new URI(baseUrl + "/topic");
         JSONObject requestBody = new JSONObject();
 
-        requestBody.put("id", 1L);
+        requestBody.put("id", testUtil.getRandomTopicId());
         requestBody.put("title", RandomString.make());
         requestBody.put("content", RandomString.make());
 
@@ -62,7 +62,7 @@ public class AdminControllerTest {
 
     @Test
     public void deleteTopic() throws URISyntaxException {
-        URI uri = new URI(baseUrl + "/topic?id=1");
+        URI uri = new URI(baseUrl + "/topic?id=" + testUtil.getRandomTopicId());
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
         ResponseEntity<JSONObject> response = restTemplate.exchange(

@@ -21,17 +21,21 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TopTopicControllerTest {
+
     @Autowired
     private TestRestTemplate restTemplate;
+
     @Autowired
     private TestUtil testUtil;
     private static final String baseUrl = "/api/topTopic";
+
     @Test
     public void add() throws URISyntaxException {
         URI uri=new URI(baseUrl);
 
         JSONObject requestBody=new JSONObject();
-        requestBody.put("id", 3L);
+        requestBody.put("id", testUtil.getRandomTopicId());
+        System.out.println(requestBody);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody,testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.postForEntity(uri, request, JSONObject.class);
@@ -42,7 +46,7 @@ public class TopTopicControllerTest {
 
     @Test
     public void delete() throws URISyntaxException {
-        URI uri=new URI(baseUrl + "?id=1");
+        URI uri = new URI(baseUrl + "?id=" + testUtil.getRandomTopTopicId());
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
@@ -54,7 +58,7 @@ public class TopTopicControllerTest {
     }
 
     @Test
-    public void find() throws URISyntaxException {
+    public void get() throws URISyntaxException {
         URI uri=new URI(baseUrl);
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
 
