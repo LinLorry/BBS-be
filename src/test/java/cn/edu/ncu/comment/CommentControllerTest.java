@@ -35,7 +35,7 @@ public class CommentControllerTest {
         URI uri = new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 1L);
+        requestBody.put("topicId", testUtil.getRandomTopicId());
         requestBody.put("content", RandomString.make());
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
@@ -48,7 +48,7 @@ public class CommentControllerTest {
 
     @Test
     public void get() throws URISyntaxException {
-        final String url = baseUrl + "/1/0";
+        final String url = baseUrl + "/" + testUtil.getRandomTopicId() + "/0";
         URI uri = new URI(url);
 
         ResponseEntity<JSONObject> response = restTemplate.exchange(

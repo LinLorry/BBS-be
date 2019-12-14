@@ -6,6 +6,7 @@ import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,16 +35,19 @@ public class CommentServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     @Transactional
     public void add() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Topic topic = topicRepository.findById(testUtil.getRandomTopicId()).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
 
         Comment comment = new Comment();
         comment.setTopic(topic);
         comment.setUser(user);
-        comment.setLocation(commentService.getNextLocationByTopicId(1L));
+        comment.setLocation(commentService.getNextLocationByTopicId(topic.getId()));
 
         comment.setContent(RandomString.make());
         comment.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -57,7 +61,7 @@ public class CommentServiceTest {
 
     @Test
     public void loadAllByTopic() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Topic topic = topicRepository.findById(testUtil.getRandomTopicId()).orElseThrow(NoSuchElementException::new);
 
         Page<Comment> comments = commentService.loadAllByTopic(topic, 0);
 
@@ -67,13 +71,13 @@ public class CommentServiceTest {
 
     @Test
     public void getNextLocationByTopicId() {
-        int result = commentService.getNextLocationByTopicId(1L);
+        int result = commentService.getNextLocationByTopicId(testUtil.getRandomTopicId());
         System.out.println(result);
         assertTrue(result > 0);
     }
 
     @Test
     public void checkByKey() {
-        assertTrue(commentService.checkByKey(new CommentKey(1, 1L)));
+        commentService.checkByKey(new CommentKey(1, testUtil.getRandomTopicId()));
     }
 }

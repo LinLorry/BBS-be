@@ -2,6 +2,7 @@ package cn.edu.ncu.topic.rep;
 
 import cn.edu.ncu.topic.model.TopTopic;
 import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.util.TestUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,15 @@ public class TopTopicRepositoryTest {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     public void save() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Long id = testUtil.getRandomTopicId();
+        while (topTopicRepository.existsById(id)) id = testUtil.getRandomTopicId();
+
+        Topic topic = topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
         TopTopic topTopic = new TopTopic();
         topTopic.setTopicId(topic.getId());
 
@@ -36,8 +43,9 @@ public class TopTopicRepositoryTest {
 
     @Test
     public void findById() {
-        TopTopic topTopic = topTopicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-        assertEquals(topTopic.getTopicId(), new Long(1));
+        Long id = testUtil.getRandomTopTopicId();
+        TopTopic topTopic = topTopicRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        assertEquals(topTopic.getTopicId(), id);
         System.out.println(topTopic);
     }
 

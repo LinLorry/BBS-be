@@ -1,11 +1,11 @@
 package cn.edu.ncu.comment.rep;
 
 import cn.edu.ncu.comment.model.Comment;
-import cn.edu.ncu.comment.model.CommentKey;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,16 +38,24 @@ public class CommentRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     @Transactional
     public void save() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Topic topic = topicRepository.findById(testUtil.getRandomTopicId()).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
+        Integer location = commentRepository.getMaxLocationByTopicId(topic.getId());
+
+        if (location == null) {
+            location = 0;
+        }
 
         Comment comment = new Comment();
         comment.setTopic(topic);
         comment.setUser(user);
-        comment.setLocation(commentRepository.getMaxLocationByTopicId(1L) + 1);
+        comment.setLocation(location + 1);
 
         comment.setContent(RandomString.make());
         comment.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -61,36 +69,15 @@ public class CommentRepositoryTest {
     }
 
     @Test
-    public void findById() {
-        CommentKey commentKey = new CommentKey(1, 1L);
-        Comment comment = commentRepository.findById(commentKey).orElseThrow(NoSuchElementException::new);
-
-        assertEquals(comment.getLocation(), new Integer(1));
-        assertEquals(comment.getTopic().getId(), new Long(1));
-        assertEquals(comment.getUser().getId(), new Long(1));
-
-        System.out.println(comment);
-    }
-
-    @Test
-    public void findAll() {
-        Iterable<Comment> iterator = commentRepository.findAll();
-
-        assertNotNull(iterator);
-        iterator.forEach(System.out::println);
-    }
-
-    @Test
     public void getMaxLocationByTopicId() {
-        Integer result = commentRepository.getMaxLocationByTopicId(1L);
+        Integer result = commentRepository.getMaxLocationByTopicId(testUtil.getRandomTopicId());
         System.out.println(result);
-        assertNotNull(result);
     }
 
     @Test
     public void findAllByTopic() {
         Topic topic = new Topic();
-        topic.setId(1L);
+        topic.setId(testUtil.getRandomTopicId());
 
         Page<Comment> comments = commentRepository.findAllByTopic(topic, PageRequest.of(0, 20));
 

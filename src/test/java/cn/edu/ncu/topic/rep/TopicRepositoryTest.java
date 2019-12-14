@@ -3,6 +3,7 @@ package cn.edu.ncu.topic.rep;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,11 +30,14 @@ public class TopicRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     @Before
     public void save() {
         Topic topic = new Topic();
-        User user = userRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
 
         topic.setTitle(RandomString.make());
         topic.setContent(RandomString.make());
@@ -49,9 +53,10 @@ public class TopicRepositoryTest {
     @Test
     @Transactional
     public void findById() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Long id = testUtil.getRandomTopicId();
+        Topic topic = topicRepository.findById(id).orElseThrow(NoSuchElementException::new);
 
-        assertEquals(topic.getId(), new Long(1));
+        assertEquals(topic.getId(), id);
         System.out.println(topic);
     }
 

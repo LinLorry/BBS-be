@@ -2,6 +2,7 @@ package cn.edu.ncu.topic.rep;
 
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,9 +24,13 @@ public class DemandRepositoryTest {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
+    @Transactional
     public void save() {
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Topic topic = topicRepository.findById(testUtil.getRandomTopicId()).orElseThrow(NoSuchElementException::new);
         Demand demand = new Demand();
         demand.setTopicId(topic.getId());
         demand.setContent(RandomString.make());
@@ -39,9 +44,10 @@ public class DemandRepositoryTest {
     @Test
     @Transactional
     public void findById() {
-        Demand demand = demandRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Long id = testUtil.getRandomDemandId();
+        Demand demand = demandRepository.findById(id).orElseThrow(NoSuchElementException::new);
 
-        assertEquals(demand.getTopicId(), new Long(1));
+        assertEquals(demand.getTopicId(), id);
         System.out.println(demand);
     }
 
