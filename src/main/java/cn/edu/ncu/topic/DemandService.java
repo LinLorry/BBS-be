@@ -3,9 +3,6 @@ package cn.edu.ncu.topic;
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.rep.DemandRepository;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -24,7 +21,6 @@ public class DemandService  {
      * @param demand addOrUpdate a new demand
      * @return Demand
      */
-    @CachePut(value = "demandCache", key = "#result.topicId")
     @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true)
     public Demand addOrUpdate(Demand demand) {
         return demandRepository.save(demand);
@@ -34,10 +30,7 @@ public class DemandService  {
      * delete Demand
      * @param topicId the topicId of which you want to delete
      */
-    @Caching(evict = {
-            @CacheEvict(value = "demandCache", key = "#topicId"),
-            @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true)
-    })
+    @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true)
     public void deleteById(Long topicId) {
         demandRepository.deleteById(topicId);
     }
@@ -47,13 +40,7 @@ public class DemandService  {
      * @param topicId demand's topicId
      * @return demand
      */
-    @Cacheable(value = "demandCache", key = "#topicId")
     public Demand loadById(Long topicId) {
-        return loadByIdNoCache(topicId);
-    }
-
-    @CachePut(value = "demandCache", key = "#topicId")
-    public Demand loadByIdNoCache(Long topicId) {
         return demandRepository.findById(topicId)
                 .orElseThrow(NoSuchElementException::new);
     }

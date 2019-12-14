@@ -5,6 +5,7 @@ import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.user.rep.UserRepository;
+import cn.edu.ncu.util.TestUtil;
 import net.bytebuddy.utility.RandomString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,13 +29,16 @@ public class DemandServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TestUtil testUtil;
+
     @Test
     @Transactional
     public void addOrUpdate() {
         Demand demand = new Demand();
-        Topic topic = topicRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Topic topic = topicRepository.findById(testUtil.getRandomTopicId()).orElseThrow(NoSuchElementException::new);
 
-        demand.setTopicId(1L);
+        demand.setTopicId(topic.getId());
         demand.setTopic(topic);
         demand.setContent(RandomString.make());
         demand.setReward(0);
@@ -42,8 +46,8 @@ public class DemandServiceTest {
         demandService.addOrUpdate(demand);
         System.out.println(demand);
 
-        User user = userRepository.findById(2L).orElseThrow(NoSuchElementException::new);
-        demand = demandService.loadByIdNoCache(1L);
+        User user = userRepository.findById(testUtil.getRandomUserId()).orElseThrow(NoSuchElementException::new);
+        demand = demandService.loadById(testUtil.getRandomDemandId());
         demand.setWinner(user);
         demandService.addOrUpdate(demand);
         System.out.println(demand);
@@ -51,14 +55,12 @@ public class DemandServiceTest {
 
     @Test
     public void deleteById() {
-        demandService.deleteById(1L);
+        demandService.deleteById(testUtil.getRandomDemandId());
     }
 
     @Test
-    public void loadByTopicId(){
-        Demand demand = demandService.loadById(1L);
-
-        demandService.loadById(1L);
+    public void loadById(){
+        Demand demand = demandService.loadById(testUtil.getRandomDemandId());
         System.out.println(demand);
     }
 }

@@ -69,7 +69,7 @@ public class DemandController {
         Integer reward = request.getInteger("reward");
 
         try {
-            Topic topic = topicService.loadById(topicId);
+            Topic topic = topicService.loadByIdNoCache(topicId);
 
             if (judge(topic)) return permission;
 
@@ -119,7 +119,7 @@ public class DemandController {
         ));
 
         try {
-            Demand demand = demandService.loadByIdNoCache(id);
+            Demand demand = demandService.loadById(id);
 
             if (judge(demand.getTopic())) return permission;
 
@@ -168,7 +168,7 @@ public class DemandController {
         JSONObject response = new JSONObject();
 
         try {
-            Demand demand = demandService.loadByIdNoCache(topicId);
+            Demand demand = demandService.loadById(topicId);
 
             if (judge(demand.getTopic())) return permission;
 

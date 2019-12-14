@@ -34,7 +34,7 @@ public class DemandControllerTest {
         URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 1L);
+        requestBody.put("topicId", testUtil.getRandomTopicId());
         requestBody.put("content", RandomString.make());
         requestBody.put("reward", 10);
 
@@ -50,8 +50,8 @@ public class DemandControllerTest {
         URI uri=new URI(baseUrl);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("topicId", 1L);
-        requestBody.put("winnerId", 1L);
+        requestBody.put("topicId", testUtil.getRandomDemandId());
+        requestBody.put("winnerId", testUtil.getRandomUserId());
         requestBody.put("content", RandomString.make());
         requestBody.put("reward", 5);
 
@@ -64,7 +64,7 @@ public class DemandControllerTest {
 
     @Test
     public void delete() throws URISyntaxException{
-        final String url = baseUrl + "?topicId=1";
+        final String url = baseUrl + "?topicId=" + testUtil.getRandomDemandId();
         URI uri=new URI(url);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(testUtil.getTokenHeader());
