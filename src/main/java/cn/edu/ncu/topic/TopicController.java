@@ -2,6 +2,8 @@ package cn.edu.ncu.topic;
 
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.user.UserService;
+import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.data.domain.Page;
@@ -23,8 +25,11 @@ public class TopicController {
 
     private final TopicService topicService;
 
-    public TopicController(TopicService topicService) {
+    private final UserService userService;
+
+    public TopicController(TopicService topicService, UserService userService) {
         this.topicService = topicService;
+        this.userService = userService;
     }
 
     /**
@@ -61,11 +66,24 @@ public class TopicController {
         ));
 
         Topic topic = new Topic();
+        User user = userService.loadByIdNoCache(SecurityUtil.getUserId());
 
         topic.setTitle(title);
         topic.setContent(content);
-        topic.setCreateUser(SecurityUtil.getUser());
+        topic.setCreateUser(user);
         topic.setCreateTime(new Timestamp(System.currentTimeMillis()));
+
+        String question = request.getString("question");
+        if(question != null) {
+            Demand demand = new Demand();
+            Integer reward = Optional.ofNullable(
+                    request.getInteger("reward")
+            ).orElse(0);
+            demand.setTopic(topic);
+            demand.setReward(reward);
+            demand.setContent(question);
+            topic.setDemand(demand);
+        }
 
         response.put("data", topicService.addOrUpdate(topic));
         response.put("status", 1);
