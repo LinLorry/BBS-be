@@ -72,9 +72,22 @@ public class UserControllerTest {
     }
 
     @Test
-    public void
-    getProfile() throws URISyntaxException {
+    public void getProfile() throws URISyntaxException {
         final String url = baseUrl + "/profile";
+        URI uri = new URI(url);
+
+        ResponseEntity<JSONObject> response = restTemplate.exchange(
+                uri, HttpMethod.GET,
+                new HttpEntity<>(testUtil.getTokenHeader()), JSONObject.class
+        );
+
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getProfileById() throws URISyntaxException {
+        final String url = baseUrl + "/profile/" + testUtil.getRandomUserId();
         URI uri = new URI(url);
 
         ResponseEntity<JSONObject> response = restTemplate.exchange(
