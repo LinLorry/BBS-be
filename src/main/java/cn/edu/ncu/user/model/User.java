@@ -1,5 +1,6 @@
 package cn.edu.ncu.user.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -101,6 +102,11 @@ public class User implements UserDetails, Serializable {
 
     public void setNature(String nature) {
         this.nature = nature;
+    }
+
+    @JsonGetter
+    public Boolean isAdmin() {
+        return userRoleSet != null;
     }
 
     @Override
