@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -37,6 +38,9 @@ public class TopicControllerTest {
         JSONObject requestBody = new JSONObject();
         requestBody.put("title", RandomString.make());
         requestBody.put("content", RandomString.make());
+
+        requestBody.put("question", RandomString.make());
+        requestBody.put("reward", 20);
 
         HttpEntity<JSONObject> request = new HttpEntity<>(requestBody, testUtil.getTokenHeader());
         ResponseEntity<JSONObject> response = restTemplate.exchange(
