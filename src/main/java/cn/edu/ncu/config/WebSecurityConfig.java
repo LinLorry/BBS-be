@@ -5,6 +5,7 @@ import cn.edu.ncu.security.AuthenticationProvider;
 import cn.edu.ncu.security.TokenAuthenticationEntryPoint;
 import cn.edu.ncu.user.UserService;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,6 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/user/token", "/api/user/registry").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/api/topic/**", "/api/comment/**", "/api/topTopic").permitAll()
                 .anyRequest().authenticated().and()
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
