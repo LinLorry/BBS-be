@@ -50,7 +50,7 @@ public class Topic implements Serializable {
     @JsonIgnore
     private Demand demand;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id", referencedColumnName = "topic_id")
     @JsonIgnore
     private TopTopic topTopic;
@@ -117,6 +117,7 @@ public class Topic implements Serializable {
 
         map.put("createUserName", createUser.getUsername());
         map.put("createUserId", createUser.getId());
+        map.put("top", topTopic != null);
 
         return map;
     }
