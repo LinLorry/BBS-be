@@ -1,10 +1,13 @@
 package cn.edu.ncu.user;
 
+import cn.edu.ncu.topic.TopicService;
+import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SecurityUtil;
 import cn.edu.ncu.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +28,12 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService, TokenUtil tokenUtil) {
-        this.userService = userService;
+    private final TopicService topicService;
+
+    public UserController(TokenUtil tokenUtil, UserService userService, TopicService topicService) {
         this.tokenUtil = tokenUtil;
+        this.userService = userService;
+        this.topicService = topicService;
     }
 
     /**
@@ -248,6 +254,22 @@ public class UserController {
             response.put("status", 0);
             response.put("message", "Old Password Wrong");
         }
+
+        return response;
+    }
+
+    @GetMapping("/topics")
+    public JSONObject getMyTopics(@RequestParam(defaultValue = "0") Integer pageNumber) {
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        Page<Topic> topics = topicService.loadAllByCreateUser(SecurityUtil.getUser(), pageNumber);
+        data.put("total", topics.getTotalPages());
+        data.put("topics", topics.getContent());
+
+        response.put("status", 1);
+        response.put("message", "Get the use all topics success.");
+        response.put("data", data);
 
         return response;
     }

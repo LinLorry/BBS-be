@@ -1,6 +1,7 @@
 package cn.edu.ncu.topic.rep;
 
 import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -24,6 +25,8 @@ public interface TopicRepository extends CrudRepository<Topic, Long>, JpaSpecifi
     Page<Topic>findAll(Pageable pageable);
 
     Page<Topic> findAllByBoutiqueIsTrue(Pageable pageable);
+
+    Page<Topic> findAllByCreateUser(User user, Pageable pageable);
 
     @Query("SELECT topic " +
             "FROM Topic topic " +

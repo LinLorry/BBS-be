@@ -4,6 +4,7 @@ import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
 import cn.edu.ncu.topic.rep.DemandRepository;
 import cn.edu.ncu.topic.rep.TopicRepository;
+import cn.edu.ncu.user.model.User;
 import cn.edu.ncu.util.SpecificationUtil;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -117,6 +118,10 @@ public class TopicService {
     @Cacheable(value = "allTopicArrayCache", key = "#pageNumber")
     public Page<Topic> loadAll(Integer pageNumber) {
         return topicRepository.findAll(PageRequest.of(pageNumber,20));
+    }
+
+    public Page<Topic> loadAllByCreateUser(User user, Integer pageNumber) {
+        return topicRepository.findAllByCreateUser(user, PageRequest.of(pageNumber, 20));
     }
 
     @Cacheable(value = "boutiqueTopicArrayCache", key = "#pageNumber")
