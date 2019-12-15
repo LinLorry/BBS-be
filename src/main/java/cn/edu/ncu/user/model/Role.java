@@ -22,7 +22,7 @@ public class Role implements Serializable {
     @Column(unique = true)
     private String role;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "role", cascade = CascadeType.REMOVE)
     private Set<UserRole> userRoleSet= new HashSet<>();
 
     public Integer getId() {

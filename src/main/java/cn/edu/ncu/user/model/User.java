@@ -44,7 +44,7 @@ public class User implements UserDetails, Serializable {
 
     private String nature;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<UserRole> userRoleSet = new HashSet<>();
 
     public Long getId() {
