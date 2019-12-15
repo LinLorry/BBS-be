@@ -165,6 +165,19 @@ public class UserController {
         return response;
     }
 
+    @GetMapping("/profile/{*id}")
+    public JSONObject getProfileById(@PathVariable("*id") Long id) {
+        JSONObject response = new JSONObject();
+
+        User user = userService.loadById(id);
+
+        response.put("status", 1);
+        response.put("message", "Get profile success.");
+        response.put("data", user);
+
+        return response;
+    }
+
     /**
      * Update User Profile Api
      * @param request {
