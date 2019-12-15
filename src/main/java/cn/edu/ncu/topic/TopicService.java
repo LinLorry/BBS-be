@@ -1,6 +1,8 @@
 package cn.edu.ncu.topic;
 
+import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.model.Topic;
+import cn.edu.ncu.topic.rep.DemandRepository;
 import cn.edu.ncu.topic.rep.TopicRepository;
 import cn.edu.ncu.util.SpecificationUtil;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,8 +23,11 @@ public class TopicService {
 
     private final TopicRepository topicRepository;
 
-    public TopicService(TopicRepository topicRepository) {
+    private final DemandRepository demandRepository;
+
+    public TopicService(TopicRepository topicRepository, DemandRepository demandRepository) {
         this.topicRepository = topicRepository;
+        this.demandRepository = demandRepository;
     }
 
     @Caching(
@@ -36,7 +41,19 @@ public class TopicService {
             }
     )
     public Topic addOrUpdate(Topic topic){
-        return topicRepository.save(topic);
+        Demand demand = null;
+        if (topic.getDemand() != null) {
+            demand = topic.getDemand();
+            topic.setDemand(null);
+        }
+        topic = topicRepository.save(topic);
+
+        if (demand != null) {
+            demand.setTopicId(topic.getId());
+            demandRepository.save(demand);
+        }
+
+        return topic;
     }
 
     /**
