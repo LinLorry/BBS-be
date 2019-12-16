@@ -153,7 +153,6 @@ public class TopicController {
         JSONObject response = new JSONObject();
         try {
             Topic topic = topicService.loadById(id);
-            Demand demand = topic.getDemand();
 
             JSONObject data = new JSONObject();
 
@@ -162,14 +161,8 @@ public class TopicController {
             data.put("content", topic.getContent());
             data.put("createTime", topic.getCreateTime());
             data.put("boutique", topic.getBoutique());
+            data.put("demand", topic.getDemand());
 
-            if (demand != null) {
-                data.put("demandContent", topic.getDemand().getContent());
-                data.put("demandReward", topic.getDemand().getReward());
-                Optional.ofNullable(
-                        demand.getWinner()
-                ).ifPresent(winner -> data.put("winnerUsername", winner.getUsername()));
-            }
             data.putAll(topic.getInfo());
 
             response.put("status", 1);

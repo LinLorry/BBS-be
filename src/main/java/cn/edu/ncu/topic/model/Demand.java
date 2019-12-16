@@ -3,6 +3,7 @@ package cn.edu.ncu.topic.model;
 import cn.edu.ncu.exception.NoEnoughScoreException;
 import cn.edu.ncu.exception.RewardInvalidException;
 import cn.edu.ncu.user.model.User;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 
@@ -22,10 +23,12 @@ public class Demand implements Serializable {
 
     @Id
     @Column(updatable = false)
+    @JsonIgnore
     private Long topicId;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.REFRESH, CascadeType.MERGE })
     @PrimaryKeyJoinColumn(name = "topic_id", referencedColumnName = "id")
+    @JsonIgnore
     private Topic topic;
 
     @Column(nullable = false)
@@ -95,6 +98,14 @@ public class Demand implements Serializable {
             winner.setScore(winner.getScore() + reward);
             this.winner = winner;
         }
+    }
+
+    @JsonGetter
+    public String getWinnerUsername() {
+        if (winner != null) {
+            return winner.getUsername();
+        }
+        return null;
     }
 
     @Override
