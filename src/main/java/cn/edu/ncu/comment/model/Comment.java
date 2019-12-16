@@ -79,8 +79,12 @@ public class Comment implements Serializable {
         this.createTime = createTime;
     }
 
-    public String getUserName() {
+    public String getUsername() {
         return user.getUsername();
+    }
+
+    public Long getUserId() {
+        return user.getId();
     }
 
     @Override
