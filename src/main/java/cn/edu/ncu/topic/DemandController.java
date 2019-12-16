@@ -135,11 +135,11 @@ public class DemandController {
                     request.getLong("winnerId")
             ).ifPresent(winnerId -> demand.setWinner(userService.loadById(winnerId)));
 
-            demandService.addOrUpdate(demand);
+            Demand finalDemand = demandService.addOrUpdate(demand);
 
             response.put("status", 1);
             response.put("message", "Update demand success.");
-
+            response.put("data", finalDemand);
         } catch (NoEnoughScoreException e) {
             response.put("status", 0);
             response.put("message", "Lack of score");
