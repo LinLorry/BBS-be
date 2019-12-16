@@ -31,7 +31,7 @@ public class AdminController {
         try{
             Topic topic = topicService.loadByIdNoCache(id);
 
-            topic.setBoutique(true);
+            topic.setBoutique(!topic.getBoutique());
             topicService.addOrUpdate(topic);
             response.put("status", 1);
             response.put("message", "Set topic boutique as true");
