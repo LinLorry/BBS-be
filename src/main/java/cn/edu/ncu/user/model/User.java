@@ -44,6 +44,8 @@ public class User implements UserDetails, Serializable {
 
     private String nature;
 
+    private String workPlace;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private Set<UserRole> userRoleSet = new HashSet<>();
 
@@ -102,6 +104,14 @@ public class User implements UserDetails, Serializable {
 
     public void setNature(String nature) {
         this.nature = nature;
+    }
+
+    public String getWorkPlace() {
+        return workPlace;
+    }
+
+    public void setWorkPlace(String workPlace) {
+        this.workPlace = workPlace;
     }
 
     @JsonGetter
