@@ -3,6 +3,7 @@ package cn.edu.ncu.topic;
 import cn.edu.ncu.topic.model.Demand;
 import cn.edu.ncu.topic.rep.DemandRepository;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -21,7 +22,10 @@ public class DemandService  {
      * @param demand addOrUpdate a new demand
      * @return Demand
      */
-    @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true),
+            @CacheEvict(value = "topicCache", key = "#result.topicId")
+    })
     public Demand addOrUpdate(Demand demand) {
         return demandRepository.save(demand);
     }
@@ -30,7 +34,10 @@ public class DemandService  {
      * delete Demand
      * @param topicId the topicId of which you want to delete
      */
-    @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "haveDemandTopicArrayCache", allEntries = true),
+            @CacheEvict(value = "topicCache", key = "#result.topicId")
+    })
     public void deleteById(Long topicId) {
         demandRepository.deleteById(topicId);
     }
