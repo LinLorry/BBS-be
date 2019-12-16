@@ -50,6 +50,7 @@ public class TopicService {
         topic = topicRepository.save(topic);
 
         if (demand != null) {
+            topic.setDemand(demand);
             demand.setTopicId(topic.getId());
             demandRepository.save(demand);
         }
